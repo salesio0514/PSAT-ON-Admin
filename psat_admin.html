@@ -1,0 +1,2533 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PSAT-ON 어드민 — 문제 등록</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy:     #0D1B3E;
+  --blue:     #1A3A8F;
+  --accent:   #2563EB;
+  --accent-lt:#EFF6FF;
+  --green:    #16A34A;
+  --green-lt: #DCFCE7;
+  --amber:    #D97706;
+  --amber-lt: #FEF3C7;
+  --red:      #DC2626;
+  --red-lt:   #FEE2E2;
+  --surface:  #F8FAFC;
+  --border:   #E2E8F0;
+  --text:     #0F172A;
+  --muted:    #64748B;
+  --white:    #FFFFFF;
+  --mono:     'JetBrains Mono', monospace;
+}
+
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  background: var(--surface);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ── Layout ── */
+.shell { display: flex; min-height: 100vh; }
+
+/* Sidebar */
+.sidebar {
+  width: 220px;
+  background: var(--navy);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+.sb-logo {
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.sb-logo-mark {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.5px;
+}
+.sb-logo-mark span { color: #60A5FA; }
+.sb-label {
+  font-size: 10px;
+  font-weight: 500;
+  color: rgba(255,255,255,.35);
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  padding: 20px 20px 8px;
+}
+.sb-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255,255,255,.5);
+  cursor: pointer;
+  border-radius: 0;
+  transition: background .12s, color .12s;
+  border-left: 3px solid transparent;
+  text-decoration: none;
+}
+.sb-item:hover { color: rgba(255,255,255,.85); background: rgba(255,255,255,.05); }
+.sb-item.active { color: #fff; background: rgba(37,99,235,.25); border-left-color: #60A5FA; }
+.sb-icon { font-size: 15px; width: 18px; text-align: center; }
+
+/* Main */
+.main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+.topbar {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.topbar-title { font-size: 15px; font-weight: 600; color: var(--text); letter-spacing: -.3px; }
+.topbar-actions { display: flex; gap: 10px; align-items: center; }
+
+.content { padding: 28px 32px; flex: 1; }
+
+/* ── Cards & panels ── */
+.panel {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.panel-head {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+}
+.panel-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -.2px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.panel-body { padding: 20px; }
+
+/* ── Form elements ── */
+.form-grid { display: grid; gap: 16px; }
+.form-grid-2 { grid-template-columns: 1fr 1fr; }
+.form-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+.form-grid-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: .2px;
+}
+.field-label .req { color: var(--red); margin-left: 2px; }
+
+input[type=text], input[type=number], select, textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13.5px;
+  color: var(--text);
+  background: var(--white);
+  transition: border-color .15s, box-shadow .15s;
+  outline: none;
+  line-height: 1.5;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(37,99,235,.10);
+}
+select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748B' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+textarea { resize: vertical; min-height: 80px; }
+
+/* Choices (보기) */
+.choices { display: flex; flex-direction: column; gap: 8px; }
+.choice-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.choice-num {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  flex-shrink: 0;
+  margin-top: 5px;
+  cursor: pointer;
+  transition: background .12s, border-color .12s, color .12s;
+}
+.choice-num.answer {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+.choice-row input { flex: 1; }
+.answer-hint {
+  font-size: 11.5px;
+  color: var(--muted);
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Image upload zone — full */
+.upload-zone {
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  padding: 28px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+  background: var(--surface);
+  position: relative;
+}
+.upload-zone:hover, .upload-zone.drag { border-color: var(--accent); background: var(--accent-lt); }
+.upload-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.upload-icon { font-size: 28px; margin-bottom: 8px; }
+.upload-text { font-size: 13px; font-weight: 500; color: var(--muted); }
+.upload-text b { color: var(--accent); }
+.upload-sub { font-size: 11.5px; color: var(--muted); margin-top: 4px; }
+
+/* Mini upload zone (inline, inside image sections) */
+.upload-zone.mini {
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 8px;
+}
+
+/* Image section layout */
+.img-section { display: flex; flex-direction: column; gap: 10px; }
+.img-section-label { display: flex; align-items: center; gap: 8px; }
+.img-section-tag {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 9px;
+  border-radius: 20px;
+  letter-spacing: .3px;
+}
+.tag-passage  { background: #EDE9FE; color: #5B21B6; }
+.tag-question { background: #DBEAFE; color: #1E40AF; }
+.tag-choice   { background: #D1FAE5; color: #065F46; }
+
+/* Image preview list */
+.img-preview-list { display: flex; flex-wrap: wrap; gap: 10px; }
+.img-preview-item {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+}
+.img-preview-item img { display: block; width: 120px; height: 80px; object-fit: cover; }
+.img-preview-order {
+  position: absolute;
+  top: 4px; left: 4px;
+  background: rgba(0,0,0,.6);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: var(--mono);
+  padding: 1px 6px;
+  border-radius: 4px;
+  line-height: 1.6;
+}
+.img-preview-name {
+  padding: 4px 8px;
+  font-size: 10.5px;
+  color: var(--muted);
+  font-family: var(--mono);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+.img-remove {
+  position: absolute;
+  top: 4px; right: 4px;
+  width: 18px; height: 18px;
+  background: rgba(0,0,0,.55);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 10px;
+  color: #fff;
+  line-height: 1;
+}
+
+/* Choice explanation rows */
+.choice-exp-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  transition: border-color .15s, background .15s;
+}
+.choice-exp-row.is-answer {
+  border-color: #86EFAC;
+  background: #F0FDF4;
+}
+.choice-exp-badge {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700;
+  flex-shrink: 0; margin-top: 2px;
+}
+.choice-exp-badge.correct { background: var(--green); color: #fff; }
+.choice-exp-badge.wrong   { background: var(--border); color: var(--muted); }
+.choice-exp-textarea {
+  flex: 1;
+  padding: 7px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
+  font-family: inherit; font-size: 12.5px;
+  color: var(--text); background: var(--white);
+  resize: vertical; min-height: 52px;
+  transition: border-color .15s;
+  outline: none; line-height: 1.6;
+}
+.choice-exp-textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,.08); }
+.choice-exp-label {
+  font-size: 11px; font-weight: 600;
+  color: var(--muted); white-space: nowrap;
+  margin-top: 4px; letter-spacing: .2px;
+}
+
+/* Statute block card */
+.statute-block {
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--white);
+}
+.statute-block-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.statute-block-num {
+  font-size: 11.5px; font-weight: 700;
+  color: var(--muted); letter-spacing: .3px;
+}
+.statute-block-body { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  transition: border-color .15s;
+}
+.choice-img-row.has-img { border-color: #86EFAC; background: #F0FDF4; }
+.choice-img-slot-num {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: var(--muted);
+  flex-shrink: 0;
+}
+.choice-img-slot-label { font-size: 12.5px; color: var(--muted); flex: 1; }
+.choice-img-thumb {
+  width: 64px; height: 44px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+.choice-img-filename {
+  font-size: 11px;
+  font-family: var(--mono);
+  color: var(--green);
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* ── Meta code panel ── */
+.meta-section { display:flex; flex-direction:column; gap:8px; }
+.meta-section-head {
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+}
+.meta-badge {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:22px; height:22px; border-radius:6px;
+  font-size:12px; font-weight:800; font-family:var(--mono);
+  flex-shrink:0;
+}
+.meta-Q { background:#EDE9FE; color:#5B21B6; }
+.meta-F { background:#DBEAFE; color:#1E40AF; }
+.meta-R { background:#D1FAE5; color:#065F46; }
+.meta-O { background:#FEF3C7; color:#92400E; }
+.meta-A { background:#FFE4E6; color:#9F1239; }
+.meta-section-title { font-size:13px; font-weight:700; color:var(--text); letter-spacing:-.2px; }
+.meta-section-desc  { font-size:11.5px; color:var(--muted); }
+.meta-selected-display {
+  margin-left:auto; font-size:11px; font-family:var(--mono);
+  color:var(--accent); font-weight:600; white-space:nowrap;
+}
+.meta-chip-grid {
+  display:flex; flex-wrap:wrap; gap:5px;
+}
+.meta-chip {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:4px 10px; border-radius:20px;
+  border:1.5px solid var(--border);
+  background:var(--surface);
+  font-size:11.5px; font-weight:500; color:var(--muted);
+  cursor:pointer; transition:all .12s; font-family:inherit;
+  white-space:nowrap; user-select:none;
+}
+.meta-chip:hover { border-color:var(--accent); color:var(--accent); background:var(--accent-lt); }
+.meta-chip.selected { border-color:var(--accent); background:var(--accent); color:#fff; }
+.meta-chip .chip-code { font-family:var(--mono); font-size:10.5px; opacity:.75; }
+.meta-divider { height:1px; background:var(--border); }
+
+/* Complexity chips (난도요소) */
+.complexity-chip {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:4px 10px; border-radius:20px;
+  border:1.5px solid var(--border); background:var(--surface);
+  font-size:11.5px; font-weight:500; color:var(--muted);
+  cursor:pointer; transition:all .12s; font-family:inherit;
+  white-space:nowrap; user-select:none;
+}
+.complexity-chip:hover { border-color:#DC2626; color:#DC2626; background:#FEF2F2; }
+.complexity-chip.selected { border-color:#DC2626; background:#DC2626; color:#fff; }
+
+/* ── Section block (지문/보기/상황 etc.) ── */
+.section-block {
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--white);
+  transition: box-shadow .15s;
+}
+.section-block-head {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.section-type-select {
+  width: auto;
+  padding: 5px 26px 5px 9px;
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
+  font-size: 12.5px; font-weight: 600;
+  color: var(--text); background: var(--white);
+  font-family: inherit; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2364748B' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 8px center; appearance: none;
+}
+.section-type-select:focus { border-color: var(--accent); outline: none; }
+.section-custom-label {
+  flex: 1; max-width: 160px;
+  padding: 5px 9px;
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
+  font-size: 12.5px; font-family: inherit; color: var(--text);
+}
+.section-custom-label:focus { border-color: var(--accent); outline: none; }
+.section-drag-handle { cursor: grab; color: var(--muted); font-size: 14px; user-select: none; margin-right: 2px; }
+.section-block-body { padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+
+/* Linked ID row */
+.linked-id-row { display: flex; align-items: center; gap: 8px; }
+.linked-id-row input { flex: 1; font-family: var(--mono); font-size: 12.5px; }
+
+.btn-upload-choice {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 12px;
+  border-radius: 7px;
+  font-size: 12px; font-weight: 600;
+  border: 1.5px solid var(--border);
+  background: var(--white);
+  color: var(--muted);
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color .12s, color .12s;
+  position: relative; overflow: hidden;
+}
+.btn-upload-choice:hover { border-color: var(--accent); color: var(--accent); }
+.btn-upload-choice input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+/* ── Buttons ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  transition: background .12s, box-shadow .12s, transform .1s;
+  white-space: nowrap;
+  letter-spacing: -.1px;
+}
+.btn:active { transform: scale(.97); }
+.btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn-primary:hover { background: #1D4ED8; }
+.btn-secondary { background: var(--white); color: var(--text); border-color: var(--border); }
+.btn-secondary:hover { background: var(--surface); }
+.btn-success { background: var(--green); color: #fff; border-color: var(--green); }
+.btn-success:hover { background: #15803D; }
+.btn-danger { background: var(--red-lt); color: var(--red); border-color: #FECACA; }
+.btn-danger:hover { background: #FEE2E2; }
+.btn-sm { padding: 5px 11px; font-size: 12px; }
+.btn-lg { padding: 11px 22px; font-size: 14px; border-radius: 10px; }
+.btn-icon { padding: 8px; }
+
+/* ── Question list table ── */
+.q-table { width: 100%; border-collapse: collapse; }
+.q-table th {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--muted);
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 1.5px solid var(--border);
+  background: var(--surface);
+  letter-spacing: .3px;
+}
+.q-table td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  vertical-align: middle;
+}
+.q-table tr:last-child td { border-bottom: none; }
+.q-table tr:hover td { background: var(--surface); }
+.q-table td .q-preview {
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text);
+}
+.q-table td .q-meta { font-size: 11.5px; color: var(--muted); margin-top: 2px; font-family: var(--mono); }
+
+/* Badges */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .1px;
+}
+.badge-언어논리 { background: #EDE9FE; color: #5B21B6; }
+.badge-자료해석 { background: #DBEAFE; color: #1E40AF; }
+.badge-상황판단 { background: #D1FAE5; color: #065F46; }
+.badge-헌법 { background: #FEF3C7; color: #92400E; }
+.badge-img { background: var(--surface); color: var(--muted); border: 1px solid var(--border); }
+
+/* JSON output */
+.json-output {
+  background: #0F172A;
+  border-radius: 10px;
+  padding: 20px;
+  overflow-x: auto;
+}
+.json-output pre {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: #94A3B8;
+  white-space: pre;
+  line-height: 1.7;
+}
+.json-key   { color: #7DD3FC; }
+.json-str   { color: #86EFAC; }
+.json-num   { color: #FCA5A5; }
+.json-bool  { color: #FDE68A; }
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  background: var(--text);
+  color: #fff;
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 8px 24px rgba(0,0,0,.18);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity .2s, transform .2s;
+  z-index: 999;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: none; }
+
+/* JSON structure guide */
+.struct-guide {
+  background: #0F172A;
+  border-radius: 10px;
+  padding: 18px 20px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: #94A3B8;
+  line-height: 1.8;
+}
+.struct-guide .k { color: #7DD3FC; }
+.struct-guide .s { color: #86EFAC; }
+.struct-guide .c { color: #475569; font-style: italic; }
+
+/* Tabs */
+.page-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1.5px solid var(--border);
+  margin-bottom: 24px;
+}
+.page-tab {
+  padding: 10px 18px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2.5px solid transparent;
+  margin-bottom: -1.5px;
+  transition: color .12s, border-color .12s;
+  letter-spacing: -.2px;
+}
+.page-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* Stats row */
+.stats-row { display: flex; gap: 12px; margin-bottom: 20px; }
+.stat-chip {
+  flex: 1;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.stat-chip .sc-val { font-size: 24px; font-weight: 700; color: var(--text); letter-spacing: -.5px; }
+.stat-chip .sc-label { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+
+/* Stepcount */
+.step-row { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.step { display: flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.step-n { width: 22px; height: 22px; border-radius: 50%; background: var(--border); color: var(--muted); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
+.step.done .step-n { background: var(--green); color: #fff; }
+.step.active .step-n { background: var(--accent); color: #fff; }
+.step.active { color: var(--text); }
+.step-line { flex: 1; height: 1.5px; background: var(--border); }
+
+/* Empty state */
+.empty-state { text-align: center; padding: 48px 20px; color: var(--muted); }
+.empty-state .es-icon { font-size: 36px; margin-bottom: 12px; }
+.empty-state .es-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.empty-state .es-desc { font-size: 13px; }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- ── Sidebar ── -->
+  <nav class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-mark">PSAT<span>-ON</span></div>
+      <div style="font-size:10.5px;color:rgba(255,255,255,.3);margin-top:3px;letter-spacing:.3px">어드민 콘솔</div>
+    </div>
+
+    <div class="sb-label">문제 관리</div>
+    <div class="sb-item active" onclick="showPage('register')"><span class="sb-icon">✏️</span> 문제 등록</div>
+    <div class="sb-item" onclick="showPage('list')"><span class="sb-icon">📋</span> 문제 목록</div>
+    <div class="sb-item" onclick="showPage('export')"><span class="sb-icon">📦</span> JSON 내보내기</div>
+
+    <div class="sb-label">안내</div>
+    <div class="sb-item" onclick="showPage('guide')"><span class="sb-icon">📖</span> JSON 구조 가이드</div>
+  </nav>
+
+  <!-- ── Main ── -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="topbar-title">문제 등록</div>
+      <div class="topbar-actions">
+        <span id="save-indicator" style="font-size:11.5px;color:var(--green);font-weight:600;opacity:0;transition:opacity .3s"></span>
+        <span style="font-size:12px;color:var(--muted)" id="q-count-badge">등록된 문제 <b id="q-count">0</b>개</span>
+        <button class="btn btn-secondary btn-sm" onclick="clearStorage()" style="color:var(--red);border-color:#FECACA">🗑 초기화</button>
+        <button class="btn btn-success btn-sm" onclick="showPage('export')">📦 JSON 내보내기</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ════════════ PAGE: 문제 등록 ════════════ -->
+      <div id="page-register">
+
+        <!-- Step indicator -->
+        <div class="step-row">
+          <div class="step active"><div class="step-n">1</div> 기본 정보</div>
+          <div class="step-line"></div>
+          <div class="step active"><div class="step-n">2</div> 문제 내용</div>
+          <div class="step-line"></div>
+          <div class="step active"><div class="step-n">3</div> 보기 & 정답</div>
+          <div class="step-line"></div>
+          <div class="step active"><div class="step-n">4</div> 이미지 첨부</div>
+        </div>
+
+        <!-- 1. 기본 정보 -->
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">📌 기본 정보</div>
+          </div>
+          <div class="panel-body">
+            <div class="form-grid form-grid-4" style="margin-bottom:14px">
+              <div class="field">
+                <label class="field-label">시험 유형<span class="req">*</span></label>
+                <select id="f-examType" onchange="onExamTypeChange()">
+                  <option value="">선택</option>
+                  <option value="deep_moi">심화 · 인사혁신처</option>
+                  <option value="deep_na">심화 · 국회사무처</option>
+                  <option value="basic_moi">기본 · 인사혁신처</option>
+                  <option value="basic_na">기본 · 국회사무처</option>
+                </select>
+              </div>
+              <div class="field">
+                <label class="field-label">영역<span class="req">*</span></label>
+                <select id="f-subject" onchange="onSubjectChange()">
+                  <option value="">선택</option>
+                  <option value="헌법">헌법</option>
+                  <option value="언어논리">언어논리</option>
+                  <option value="자료해석">자료해석</option>
+                  <option value="상황판단">상황판단</option>
+                </select>
+              </div>
+              <div class="field">
+                <label class="field-label">출제연도<span class="req">*</span></label>
+                <select id="f-year">
+                  <option value="">선택</option>
+                  <!-- JS로 채움 -->
+                </select>
+              </div>
+              <div class="field">
+                <label class="field-label">문번<span class="req">*</span></label>
+                <input type="number" id="f-qnum" min="1" max="40" placeholder="예) 1">
+              </div>
+            </div>
+            <div class="form-grid form-grid-4" style="margin-bottom:14px">
+              <div class="field" style="grid-column:span 2">
+                <label class="field-label">세부 유형 (영역 선택 후 활성화)</label>
+                <div id="subtype-selector" style="display:flex;flex-direction:column;gap:6px">
+                  <div style="display:flex;gap:6px;align-items:center">
+                    <select id="f-subtype-mid" onchange="onMidTypeChange()" style="flex:1;background:var(--surface)" disabled>
+                      <option value="">영역을 먼저 선택하세요</option>
+                    </select>
+                    <select id="f-subtype-detail" onchange="onDetailTypeChange()" style="flex:1;background:var(--surface)" disabled>
+                      <option value="">대분류를 선택하세요</option>
+                    </select>
+                  </div>
+                  <div id="subtype-result" style="display:none;align-items:center;gap:8px;padding:7px 10px;background:var(--accent-lt);border-radius:7px;border:1px solid #BFDBFE">
+                    <span style="font-size:11.5px;color:var(--accent);font-weight:700;font-family:var(--mono)" id="subtype-code"></span>
+                    <span style="font-size:12px;color:var(--accent)" id="subtype-name"></span>
+                    <button onclick="clearSubtype()" style="margin-left:auto;background:none;border:none;cursor:pointer;color:var(--accent);font-size:14px;line-height:1">✕</button>
+                  </div>
+                  <input type="hidden" id="f-subtype">
+                </div>
+              </div>
+              <div class="field">
+                <label class="field-label">책형</label>
+                <input type="text" id="f-booktype" placeholder="예) 가, 나, 다, 라">
+              </div>
+              <div class="field">
+                <label class="field-label">정답 문항 수</label>
+                <select id="f-choicecount" onchange="renderChoices()">
+                  <option value="5" selected>5지선다</option>
+                  <option value="4">4지선다</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- 난이도 + 난도요소 한 행 -->
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <div class="field" style="width:120px;flex-shrink:0">
+                <label class="field-label">난이도</label>
+                <select id="f-difficulty" onchange="onDifficultyChange()">
+                  <option value="1">하</option>
+                  <option value="2" selected>중</option>
+                  <option value="3">상</option>
+                </select>
+              </div>
+              <!-- 난도 요소 (난이도 '상'일 때만) -->
+              <div class="field" id="complexity-wrap" style="flex:1;display:none">
+                <label class="field-label">난도 요소 <span style="font-weight:400;color:var(--muted)">(복수 선택 가능)</span></label>
+                <div id="complexity-chips" style="display:flex;flex-wrap:wrap;gap:6px;padding:8px;background:var(--surface);border:1.5px solid var(--border);border-radius:8px">
+                  <!-- JS 렌더 -->
+                </div>
+                <input type="hidden" id="f-complexity">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 1-B. 메타 코드 패널 -->
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">🏷 문제 메타 코드</div>
+            <div style="font-size:11.5px;color:var(--muted)">Q · F · R · O · A — 복수 선택 가능</div>
+          </div>
+          <div class="panel-body" style="display:flex;flex-direction:column;gap:16px">
+
+            <!-- Q: 문제 요구 방식 -->
+            <div class="meta-section">
+              <div class="meta-section-head">
+                <span class="meta-badge meta-Q">Q</span>
+                <span class="meta-section-title">문제 요구 방식</span>
+                <span class="meta-section-desc">문제가 수험생에게 무엇을 요구하는가</span>
+                <span class="meta-selected-display" id="sel-Q"></span>
+              </div>
+              <div class="meta-chip-grid" id="chips-Q"></div>
+            </div>
+
+            <div class="meta-divider"></div>
+
+            <!-- F: 출제 형식 -->
+            <div class="meta-section">
+              <div class="meta-section-head">
+                <span class="meta-badge meta-F">F</span>
+                <span class="meta-section-title">출제 형식</span>
+                <span class="meta-section-desc">문제가 어떤 형태의 정보로 구성되는가</span>
+                <span class="meta-selected-display" id="sel-F"></span>
+              </div>
+              <div class="meta-chip-grid" id="chips-F"></div>
+            </div>
+
+            <div class="meta-divider"></div>
+
+            <!-- R: 사고 과정 -->
+            <div class="meta-section">
+              <div class="meta-section-head">
+                <span class="meta-badge meta-R">R</span>
+                <span class="meta-section-title">사고 과정</span>
+                <span class="meta-section-desc">문제를 풀 때 요구되는 핵심 사고</span>
+                <span class="meta-selected-display" id="sel-R"></span>
+              </div>
+              <div class="meta-chip-grid" id="chips-R"></div>
+            </div>
+
+            <div class="meta-divider"></div>
+
+            <!-- O: 선택지 구조 -->
+            <div class="meta-section">
+              <div class="meta-section-head">
+                <span class="meta-badge meta-O">O</span>
+                <span class="meta-section-title">선택지 구조</span>
+                <span class="meta-section-desc">선택지가 어떤 방식으로 구성되는가</span>
+                <span class="meta-selected-display" id="sel-O"></span>
+              </div>
+              <div class="meta-chip-grid" id="chips-O"></div>
+            </div>
+
+            <div class="meta-divider"></div>
+
+            <!-- A: 정답 판단 구조 -->
+            <div class="meta-section">
+              <div class="meta-section-head">
+                <span class="meta-badge meta-A">A</span>
+                <span class="meta-section-title">정답 판단 구조</span>
+                <span class="meta-section-desc">정답이 어떤 논리로 결정되는가</span>
+                <span class="meta-selected-display" id="sel-A"></span>
+              </div>
+              <div class="meta-chip-grid" id="chips-A"></div>
+            </div>
+
+            <input type="hidden" id="f-meta-Q">
+            <input type="hidden" id="f-meta-F">
+            <input type="hidden" id="f-meta-R">
+            <input type="hidden" id="f-meta-O">
+            <input type="hidden" id="f-meta-A">
+          </div>
+        </div><!-- /메타 코드 패널 -->
+
+        <!-- 2. 문제 내용 -->
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">📝 문제 내용</div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <button class="btn btn-secondary btn-sm" onclick="addSection()">＋ 섹션 추가</button>
+              <div style="font-size:11.5px;color:var(--muted)">지문·보기·상황·조건 등 섹션 단위로 등록</div>
+            </div>
+          </div>
+          <div class="panel-body" style="display:flex;flex-direction:column;gap:0">
+
+            <!-- 지문 섹션 목록 (JS 렌더) -->
+            <div id="section-list" style="display:flex;flex-direction:column;gap:12px;margin-bottom:16px"></div>
+
+            <!-- 지문 공유 (19-20번, 39-40번 등) -->
+            <div style="padding:14px;background:var(--surface);border:1.5px solid var(--border);border-radius:10px">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:0">
+                <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text)">
+                  <input type="checkbox" id="f-linked-toggle" onchange="toggleLinked(this)" style="width:auto;accent-color:var(--accent)">
+                  🔗 지문 공유 문제 (19-20번, 39-40번 등)
+                </label>
+              </div>
+              <div id="linked-wrap" style="display:none;flex-direction:column;gap:10px;margin-top:12px">
+                <div style="font-size:12px;color:var(--muted);line-height:1.7;padding:8px 12px;background:#EFF6FF;border-radius:8px;border:1px solid #BFDBFE">
+                  📌 이 문제와 지문을 <b>공유하는 다른 문제의 ID</b>를 입력하세요.<br>
+                  앱에서 두 문제를 함께 불러올 때 사용합니다.<br>
+                  <span style="color:var(--accent);font-family:var(--mono);font-size:11px">예) deep_moi_2024_상황판단_40</span>
+                </div>
+                <div id="linked-id-list" style="display:flex;flex-direction:column;gap:8px"></div>
+                <button class="btn btn-secondary btn-sm" style="align-self:flex-start" onclick="addLinkedId()">＋ 연결 문제 추가</button>
+              </div>
+            </div>
+
+            <div style="margin-top:16px">
+              <div class="field">
+                <label class="field-label">문제 <span class="req">*</span></label>
+                <textarea id="f-question" rows="3" placeholder="예) 위 글을 근거로 판단할 때 옳은 것은?&#10;예) 다음 <보기>에서 옳은 것만을 모두 고르면?"></textarea>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 3. 보기 & 정답 -->
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">✅ 보기 &amp; 정답</div>
+            <div style="font-size:11.5px;color:var(--muted)">번호 클릭 → 정답 지정 · 📎 클릭 → 선지 이미지 첨부</div>
+          </div>
+          <div class="panel-body">
+            <div class="choices" id="choices-container"></div>
+            <div class="answer-hint" style="margin-top:10px">
+              <span>💡</span>
+              <span id="answer-hint-text" style="font-size:11.5px;color:var(--muted)">번호를 클릭해 정답을 선택하세요.</span>
+            </div>
+
+            <!-- 해설 + 선지별 정오답 해설 + 법조문 (복수) -->
+            <div style="margin-top:16px;display:flex;flex-direction:column;gap:20px">
+
+              <!-- 전체 해설 -->
+              <div class="field">
+                <label class="field-label">전체 해설 <span style="font-weight:400;color:var(--muted)">(선택)</span></label>
+                <textarea id="f-explanation" rows="4" placeholder="문제 전반에 대한 총괄 해설을 입력하세요."></textarea>
+              </div>
+
+              <!-- 선지별 정오답 해설 -->
+              <div>
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+                  <label class="field-label" style="margin:0">🔍 선지별 정오답 해설</label>
+                  <span style="font-size:11.5px;color:var(--muted)">각 선지가 왜 맞는지/틀린지 개별 설명</span>
+                </div>
+                <div id="choice-explanation-list" style="display:flex;flex-direction:column;gap:8px">
+                  <!-- renderChoices() 호출 시 JS로 함께 렌더 -->
+                </div>
+              </div>
+
+              <!-- 법조문 (복수) -->
+              <div>
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+                  <div style="display:flex;align-items:center;gap:10px">
+                    <label class="field-label" style="margin:0">⚖️ 관련 법조문</label>
+                    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12.5px;color:var(--muted)">
+                      <input type="checkbox" id="f-statute-toggle" onchange="toggleStatute(this)" style="width:auto;accent-color:var(--accent)">
+                      법조문이 있는 문제입니다
+                    </label>
+                  </div>
+                  <button class="btn btn-secondary btn-sm" id="btn-add-statute" style="display:none" onclick="addStatuteBlock()">＋ 법조문 추가</button>
+                </div>
+                <div id="statute-wrap" style="display:none;flex-direction:column;gap:12px">
+                  <div style="padding:10px 14px;background:#F0FDF4;border:1.5px solid #86EFAC;border-radius:8px;font-size:12px;color:#166534;line-height:1.7">
+                    📌 각 사안별로 법조문을 따로 추가할 수 있습니다. 앱 해설 화면의 "관련 법조문" 섹션에 순서대로 표시됩니다.
+                  </div>
+                  <div id="statute-blocks" style="display:flex;flex-direction:column;gap:12px">
+                    <!-- JS로 렌더 -->
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. 이미지 첨부 — 섹션별 -->
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">🖼 이미지 첨부</div>
+            <div style="font-size:11.5px;color:var(--muted)">각 섹션 안에서 직접 첨부 · 선지 이미지는 아래에서</div>
+          </div>
+          <div class="panel-body" style="display:flex;flex-direction:column;gap:20px">
+
+            <div style="padding:10px 14px;background:var(--accent-lt);border:1px solid #BFDBFE;border-radius:8px;font-size:12.5px;color:#1E40AF;line-height:1.7">
+              📄 <b>지문·보기·상황 등 각 섹션의 이미지</b>는 위 "문제 내용" 패널의 각 섹션 안에 있는 <b>📎 이미지 첨부</b> 버튼으로 올려주세요.<br>
+              여기서는 <b>선지(보기 번호) 이미지</b>만 등록합니다.
+            </div>
+
+            <div style="height:1px;background:var(--border)"></div>
+
+            <!-- 선지 이미지 -->
+            <div class="img-section">
+              <div class="img-section-label">
+                <span class="img-section-tag tag-choice">선지</span>
+                <span style="font-size:12.5px;font-weight:600;color:var(--text)">선지별 이미지</span>
+                <span style="font-size:11.5px;color:var(--muted);margin-left:6px">선지마다 1장씩 (없으면 비워두세요)</span>
+              </div>
+              <div id="choice-img-slots" style="display:flex;flex-direction:column;gap:10px;margin-top:8px"></div>
+            </div>
+
+            <!-- 파일명 안내 -->
+            <div style="padding:12px 14px;background:var(--amber-lt);border-radius:8px;font-size:12px;color:#78350F;line-height:1.8">
+              ⚠️ <b>Xcode 연동 규칙</b><br>
+              업로드한 이미지를 <code style="background:rgba(0,0,0,.08);padding:1px 5px;border-radius:4px">Assets.xcassets</code>에 <b>동일 파일명</b>으로 추가하세요. JSON에는 파일명만 저장됩니다.<br>
+              권장 예) <code style="background:rgba(0,0,0,.08);padding:1px 5px;border-radius:4px">q_2024_자료해석_01_지문1_img1.png</code>
+            </div>
+          </div>
+        </div>
+
+        <!-- 등록 버튼 -->
+        <div style="display:flex;justify-content:flex-end;gap:10px;margin-bottom:40px">
+          <button class="btn btn-secondary" onclick="resetForm()">초기화</button>
+          <button class="btn btn-primary btn-lg" onclick="addQuestion()">➕ 문제 목록에 추가</button>
+        </div>
+
+      </div><!-- /page-register -->
+
+
+      <!-- ════════════ PAGE: 문제 목록 ════════════ -->
+      <div id="page-list" style="display:none">
+        <div class="stats-row" id="stats-row">
+          <div class="stat-chip"><div class="sc-val" id="s-total">0</div><div class="sc-label">전체 문제</div></div>
+          <div class="stat-chip"><div class="sc-val" id="s-헌법">0</div><div class="sc-label">헌법</div></div>
+          <div class="stat-chip"><div class="sc-val" id="s-언어논리">0</div><div class="sc-label">언어논리</div></div>
+          <div class="stat-chip"><div class="sc-val" id="s-자료해석">0</div><div class="sc-label">자료해석</div></div>
+          <div class="stat-chip"><div class="sc-val" id="s-상황판단">0</div><div class="sc-label">상황판단</div></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">📋 등록된 문제</div>
+            <div style="display:flex;gap:8px">
+              <select id="filter-subject" onchange="renderTable()" style="width:120px;padding:6px 10px;font-size:12.5px">
+                <option value="">전체 영역</option>
+                <option value="헌법">헌법</option>
+                <option value="언어논리">언어논리</option>
+                <option value="자료해석">자료해석</option>
+                <option value="상황판단">상황판단</option>
+              </select>
+            </div>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="q-table" id="q-table">
+              <thead>
+                <tr>
+                  <th style="width:44px">#</th>
+                  <th>영역</th>
+                  <th>연도 · 번호</th>
+                  <th>세부유형</th>
+                  <th>문제</th>
+                  <th style="width:60px">정답</th>
+                  <th style="width:50px">이미지</th>
+                  <th style="width:80px">난이도</th>
+                  <th style="width:80px">관리</th>
+                </tr>
+              </thead>
+              <tbody id="q-tbody">
+                <tr><td colspan="9">
+                  <div class="empty-state">
+                    <div class="es-icon">📭</div>
+                    <div class="es-title">등록된 문제가 없습니다</div>
+                    <div class="es-desc">왼쪽 메뉴에서 문제를 등록해 주세요</div>
+                  </div>
+                </td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div><!-- /page-list -->
+
+
+      <!-- ════════════ PAGE: JSON 내보내기 ════════════ -->
+      <div id="page-export" style="display:none">
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">📦 JSON 내보내기</div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-secondary btn-sm" onclick="copyJSON()">📋 클립보드 복사</button>
+              <button class="btn btn-success" onclick="downloadJSON()">⬇️ questions.json 다운로드</button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div style="font-size:12.5px;color:var(--muted);margin-bottom:14px;line-height:1.7">
+              이 파일을 <code style="background:var(--surface);padding:2px 6px;border-radius:4px;font-family:var(--mono)">Xcode 프로젝트 → 번들에 추가</code>하세요.<br>
+              이미지 파일은 <code style="background:var(--surface);padding:2px 6px;border-radius:4px;font-family:var(--mono)">Assets.xcassets</code>에 동일 파일명으로 추가하세요.
+            </div>
+            <div class="json-output">
+              <pre id="json-preview">// 문제를 등록하면 JSON이 여기에 표시됩니다</pre>
+            </div>
+          </div>
+        </div>
+      </div><!-- /page-export -->
+
+
+      <!-- ════════════ PAGE: JSON 구조 가이드 ════════════ -->
+      <div id="page-guide" style="display:none">
+        <div class="panel">
+          <div class="panel-head"><div class="panel-title">📖 JSON 구조 가이드 — questions.json</div></div>
+          <div class="panel-body">
+            <p style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.8">
+              앱은 번들에 포함된 <code style="background:var(--surface);padding:2px 6px;border-radius:4px;font-family:var(--mono)">questions.json</code>을 읽어 문제를 표시합니다.<br>
+              어드민에서 내보낸 파일을 Xcode에 교체하면 다음 배포 시 반영됩니다.
+            </p>
+            <div class="struct-guide">
+<span class="c">// questions.json 전체 구조</span>
+{
+  <span class="k">"version"</span>: <span class="s">"1.0.0"</span>,          <span class="c">// 스키마 버전</span>
+  <span class="k">"exportedAt"</span>: <span class="s">"2025-09-07"</span>,   <span class="c">// 내보낸 날짜</span>
+  <span class="k">"questions"</span>: [
+    {
+      <span class="k">"id"</span>: <span class="s">"deep_moi_2024_언어논리_01"</span>,  <span class="c">// 고유 ID (자동생성)</span>
+      <span class="k">"examType"</span>: <span class="s">"deep_moi"</span>,           <span class="c">// deep_moi | deep_na | basic_moi | basic_na</span>
+      <span class="k">"subject"</span>: <span class="s">"언어논리"</span>,             <span class="c">// 헌법 | 언어논리 | 자료해석 | 상황판단</span>
+      <span class="k">"year"</span>: 2024,                       <span class="c">// 출제연도</span>
+      <span class="k">"number"</span>: 1,                        <span class="c">// 문번</span>
+      <span class="k">"subtype"</span>: <span class="s">"강화·약화"</span>,           <span class="c">// 세부 유형 (없으면 null)</span>
+      <span class="k">"difficulty"</span>: 3,                    <span class="c">// 1(하) ~ 5(상)</span>
+      <span class="k">"passage"</span>: <span class="s">"지문 내용..."</span>,        <span class="c">// 지문 (없으면 null)</span>
+      <span class="k">"question"</span>: <span class="s">"문제 내용..."</span>,       <span class="c">// 문제 본문</span>
+      <span class="k">"choices"</span>: [                        <span class="c">// 보기 배열</span>
+        <span class="s">"① 첫 번째 보기"</span>,
+        <span class="s">"② 두 번째 보기"</span>,
+        <span class="s">"③ 세 번째 보기"</span>,
+        <span class="s">"④ 네 번째 보기"</span>,
+        <span class="s">"⑤ 다섯 번째 보기"</span>
+      ],
+      <span class="k">"answer"</span>: 3,                        <span class="c">// 정답 번호 (1-based)</span>
+      <span class="k">"explanation"</span>: <span class="s">"해설 내용..."</span>,    <span class="c">// 해설 (없으면 null)</span>
+      <span class="k">"passageImages"</span>: [                  <span class="c">// 지문 이미지 파일명 배열 (순서 중요)</span>
+        <span class="s">"q_2024_자료해석_01_p1.png"</span>,
+        <span class="s">"q_2024_자료해석_01_p2.png"</span>
+      ],
+      <span class="k">"questionImages"</span>: [                 <span class="c">// 문제 이미지 파일명 배열 (순서 중요)</span>
+        <span class="s">"q_2024_자료해석_01_q1.png"</span>
+      ],
+      <span class="k">"choiceImages"</span>: {                   <span class="c">// 선지 이미지 — 키: 선지 번호(문자열), 값: 파일명</span>
+        <span class="s">"2"</span>: <span class="s">"q_2024_자료해석_01_c2.png"</span>,  <span class="c">// 2번 선지에 이미지</span>
+        <span class="s">"4"</span>: <span class="s">"q_2024_자료해석_01_c4.png"</span>   <span class="c">// 4번 선지에 이미지</span>
+      }
+    }
+  ]
+}
+            </div>
+
+            <div style="margin-top:20px;padding:16px;background:var(--accent-lt);border-radius:10px;border:1px solid #BFDBFE">
+              <div style="font-size:13px;font-weight:600;color:var(--accent);margin-bottom:10px">🛠 Xcode에서 JSON 읽는 Swift 코드 (참고)</div>
+              <div class="struct-guide" style="background:#0F172A">
+<span style="color:#7DD3FC">struct</span> <span style="color:#FDE68A">Question</span>: <span style="color:#86EFAC">Codable</span>, <span style="color:#86EFAC">Identifiable</span> {
+  <span style="color:#7DD3FC">let</span> id: <span style="color:#FDE68A">String</span>
+  <span style="color:#7DD3FC">let</span> examType: <span style="color:#FDE68A">String</span>
+  <span style="color:#7DD3FC">let</span> subject: <span style="color:#FDE68A">String</span>
+  <span style="color:#7DD3FC">let</span> year: <span style="color:#FCA5A5">Int</span>
+  <span style="color:#7DD3FC">let</span> number: <span style="color:#FCA5A5">Int</span>
+  <span style="color:#7DD3FC">let</span> subtype: <span style="color:#FDE68A">String</span>?
+  <span style="color:#7DD3FC">let</span> difficulty: <span style="color:#FCA5A5">Int</span>
+  <span style="color:#7DD3FC">let</span> passage: <span style="color:#FDE68A">String</span>?
+  <span style="color:#7DD3FC">let</span> question: <span style="color:#FDE68A">String</span>
+  <span style="color:#7DD3FC">let</span> choices: [<span style="color:#FDE68A">String</span>]
+  <span style="color:#7DD3FC">let</span> answer: <span style="color:#FCA5A5">Int</span>
+  <span style="color:#7DD3FC">let</span> explanation: <span style="color:#FDE68A">String</span>?
+  <span style="color:#7DD3FC">let</span> choiceExplanations: [<span style="color:#FDE68A">String</span>: <span style="color:#FDE68A">String</span>] <span style="color:#475569">// { "1": "왜 맞는지", "2": "왜 틀린지" }</span>
+  <span style="color:#7DD3FC">let</span> statutes: [<span style="color:#FDE68A">Statute</span>]             <span style="color:#475569">// 관련 법조문 배열</span>
+}
+
+<span style="color:#7DD3FC">struct</span> <span style="color:#FDE68A">QuestionSection</span>: <span style="color:#86EFAC">Codable</span> {
+  <span style="color:#7DD3FC">let</span> type: <span style="color:#FDE68A">String</span>       <span style="color:#475569">// "지문" | "보기" | "상황" | "조건" | "표" | "그림" | "기타"</span>
+  <span style="color:#7DD3FC">let</span> label: <span style="color:#FDE68A">String</span>?     <span style="color:#475569">// 커스텀 레이블 (예: "&lt;보기&gt;"), nil이면 type 사용</span>
+  <span style="color:#7DD3FC">let</span> text: <span style="color:#FDE68A">String</span>?      <span style="color:#475569">// 본문 텍스트</span>
+  <span style="color:#7DD3FC">let</span> images: [<span style="color:#FDE68A">String</span>]  <span style="color:#475569">// 이미지 파일명 배열 (순서 있음)</span>
+}
+
+<span style="color:#7DD3FC">struct</span> <span style="color:#FDE68A">Statute</span>: <span style="color:#86EFAC">Codable</span> {
+  <span style="color:#7DD3FC">let</span> title: <span style="color:#FDE68A">String</span>?
+  <span style="color:#7DD3FC">let</span> content: <span style="color:#FDE68A">String</span>?
+}
+
+<span style="color:#7DD3FC">func</span> <span style="color:#86EFAC">loadQuestions</span>() -> [<span style="color:#FDE68A">Question</span>] {
+  <span style="color:#7DD3FC">guard let</span> url = <span style="color:#FDE68A">Bundle</span>.main.url(forResource: <span style="color:#86EFAC">"questions"</span>, withExtension: <span style="color:#86EFAC">"json"</span>),
+        <span style="color:#7DD3FC">let</span> data = <span style="color:#7DD3FC">try</span>? <span style="color:#FDE68A">Data</span>(contentsOf: url)
+  <span style="color:#7DD3FC">else</span> { <span style="color:#7DD3FC">return</span> [] }
+
+  <span style="color:#7DD3FC">struct</span> <span style="color:#FDE68A">Root</span>: <span style="color:#86EFAC">Codable</span> { <span style="color:#7DD3FC">let</span> questions: [<span style="color:#FDE68A">Question</span>] }
+  <span style="color:#7DD3FC">return</span> (<span style="color:#7DD3FC">try</span>? <span style="color:#FDE68A">JSONDecoder</span>().decode(<span style="color:#FDE68A">Root</span>.<span style="color:#7DD3FC">self</span>, from: data))?.questions ?? []
+}
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div><!-- /page-guide -->
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /shell -->
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+/*
+   State
+   sections: [{ id, type, customLabel, text, imgFiles:[] }]
+   imgs.choices: { 1: {file,name,src}|null, … }
+   linkedIds: [{ rowId, value }]
+*/
+let questions    = [];
+let answerIdx    = null;
+let imgs         = { choices: {} };
+let sections     = [];
+let sectionCount = 0;
+let linkedIds    = [];
+let linkedCount  = 0;
+let statuteCount = 0;
+
+const STORAGE_KEY = 'psat_admin_questions_v1';  // 최상단 선언
+
+const SECTION_TYPES = ['지문','보기','상황','조건','표','그림','기타'];
+
+/* 메타 코드 데이터 */
+const META_CODES = {
+  Q: [
+    {code:'Q01',name:'내용 확인'},{code:'Q02',name:'내용 일치 판단'},{code:'Q03',name:'내용 불일치 판단'},
+    {code:'Q04',name:'추론'},{code:'Q05',name:'적용'},{code:'Q06',name:'비교'},{code:'Q07',name:'분류'},
+    {code:'Q08',name:'평가'},{code:'Q09',name:'관계 파악'},{code:'Q10',name:'원인·결과 판단'},
+    {code:'Q11',name:'조건 판단'},{code:'Q12',name:'가능성 판단'},{code:'Q13',name:'필연성 판단'},
+    {code:'Q14',name:'최댓값 판단'},{code:'Q15',name:'최솟값 판단'},{code:'Q16',name:'순서 결정'},
+    {code:'Q17',name:'선택'},{code:'Q18',name:'계산'},{code:'Q19',name:'역산'},{code:'Q20',name:'오류·모순 찾기'},
+    {code:'Q21',name:'빈칸 완성'},{code:'Q22',name:'문장·항목 배열'},{code:'Q23',name:'종합 판단'},
+    {code:'Q24',name:'적절한 것 선택'},{code:'Q25',name:'부적절한 것 선택'},
+  ],
+  F: [
+    {code:'F01',name:'단일 지문'},{code:'F02',name:'복수 지문'},{code:'F03',name:'짧은 문장·자료'},
+    {code:'F04',name:'표'},{code:'F05',name:'그래프'},{code:'F06',name:'차트'},{code:'F07',name:'수식·계산식'},
+    {code:'F08',name:'법조문·규정'},{code:'F09',name:'판례·결정례'},{code:'F10',name:'사례'},
+    {code:'F11',name:'조건 목록'},{code:'F12',name:'일정·시간표'},{code:'F13',name:'순서·배열 자료'},
+    {code:'F14',name:'그림·도식'},{code:'F15',name:'지도·공간자료'},{code:'F16',name:'통계자료'},
+    {code:'F17',name:'역사자료'},{code:'F18',name:'과학·기술자료'},{code:'F19',name:'복합자료'},
+    {code:'F20',name:'이미지 자료'},{code:'F21',name:'기타'},
+  ],
+  R: [
+    {code:'R01',name:'기억·회상'},{code:'R02',name:'정보 추출'},{code:'R03',name:'분류'},{code:'R04',name:'비교'},
+    {code:'R05',name:'연결'},{code:'R06',name:'논리적 추론'},{code:'R07',name:'조건 추론'},{code:'R08',name:'인과 추론'},
+    {code:'R09',name:'수량적 추론'},{code:'R10',name:'공간적 추론'},{code:'R11',name:'시간적 추론'},
+    {code:'R12',name:'규칙 적용'},{code:'R13',name:'사례 적용'},{code:'R14',name:'반례 탐색'},
+    {code:'R15',name:'모순 탐색'},{code:'R16',name:'최적화'},{code:'R17',name:'계산'},
+    {code:'R18',name:'역추론'},{code:'R19',name:'종합·통합'},{code:'R20',name:'판단·평가'},
+  ],
+  O: [
+    {code:'O01',name:'단일 진술 5개'},{code:'O02',name:'복수 진술 조합'},{code:'O03',name:'ㄱ·ㄴ·ㄷ 조합'},
+    {code:'O04',name:'선후·순서 선택'},{code:'O05',name:'숫자 선택'},{code:'O06',name:'인물·대상 선택'},
+    {code:'O07',name:'표 선택'},{code:'O08',name:'그래프 선택'},{code:'O09',name:'문장 선택'},
+    {code:'O10',name:'사례 선택'},{code:'O11',name:'기타'},
+  ],
+  A: [
+    {code:'A01',name:'단일 정답'},{code:'A02',name:'옳은 것 1개'},{code:'A03',name:'옳지 않은 것 1개'},
+    {code:'A04',name:'모두 옳음'},{code:'A05',name:'모두 옳지 않음'},{code:'A06',name:'조건 충족'},
+    {code:'A07',name:'조건 불충족'},{code:'A08',name:'최댓값'},{code:'A09',name:'최솟값'},
+    {code:'A10',name:'유일한 가능'},{code:'A11',name:'가능한 경우'},{code:'A12',name:'반드시 참'},
+    {code:'A13',name:'반드시 거짓'},{code:'A14',name:'가장 적절한 것'},{code:'A15',name:'가장 부적절한 것'},
+  ],
+};
+
+const COMPLEXITY_CODES = [
+  {code:'C01',name:'정보량 많음'},{code:'C02',name:'조건 많음'},{code:'C03',name:'계산량 많음'},
+  {code:'C04',name:'추론 단계 많음'},{code:'C05',name:'함정 선지'},{code:'C06',name:'복합 개념'},
+  {code:'C07',name:'낯선 소재'},{code:'C08',name:'시간 압박'},{code:'C09',name:'고난도 계산'},
+  {code:'C10',name:'다중 자료'},
+];
+
+let metaSel = { Q:new Set(), F:new Set(), R:new Set(), O:new Set(), A:new Set(), C:new Set() };
+
+/*
+   Init
+*/
+(function init() {
+  const yearEl = document.getElementById('f-year');
+  const now = new Date().getFullYear();
+  for (let y = now; y >= 2004; y--) {
+    const opt = document.createElement('option');
+    opt.value = y; opt.textContent = y + '년';
+    yearEl.appendChild(opt);
+  }
+  renderChoices();
+  addSection('지문');
+  initMetaChips();
+  loadFromStorage();  // 저장된 문제 복원
+})();
+
+/*
+   Page routing
+*/
+const pageMap = {
+  register: '문제 등록',
+  list:     '문제 목록',
+  export:   'JSON 내보내기',
+  guide:    'JSON 구조 가이드',
+};
+
+function showPage(p) {
+  Object.keys(pageMap).forEach(k => {
+    document.getElementById('page-' + k).style.display = k === p ? '' : 'none';
+  });
+  document.querySelectorAll('.sb-item').forEach(el => el.classList.remove('active'));
+  event.currentTarget && event.currentTarget.classList.add('active');
+  document.getElementById('topbar-title').textContent = pageMap[p];
+  if (p === 'list')   renderTable();
+  if (p === 'export') renderJSON();
+}
+
+function initMetaChips() {
+  // 메타 코드 칩 렌더
+  Object.entries(META_CODES).forEach(([cat, items]) => {
+    const el = document.getElementById('chips-' + cat);
+    if (!el) return;
+    el.innerHTML = items.map(item => `
+      <button type="button" class="meta-chip" id="mchip-${item.code}"
+        onclick="toggleMeta('${cat}','${item.code}')">
+        <span class="chip-code">${item.code}</span>${item.name}
+      </button>`).join('');
+  });
+
+  // 난도요소 칩 렌더
+  const cEl = document.getElementById('complexity-chips');
+  if (cEl) {
+    cEl.innerHTML = COMPLEXITY_CODES.map(item => `
+      <button type="button" class="complexity-chip" id="cchip-${item.code}"
+        onclick="toggleComplexity('${item.code}')">
+        <span style="font-family:var(--mono);font-size:10.5px;opacity:.7">${item.code}</span>${item.name}
+      </button>`).join('');
+  }
+}
+
+function toggleMeta(cat, code) {
+  const s = metaSel[cat];
+  if (s.has(code)) s.delete(code); else s.add(code);
+  document.getElementById('mchip-' + code)?.classList.toggle('selected', s.has(code));
+  // hidden input & 선택 표시 갱신
+  const arr = [...s].sort();
+  document.getElementById('f-meta-' + cat).value = arr.join(',');
+  const disp = document.getElementById('sel-' + cat);
+  if (disp) disp.textContent = arr.length ? arr.join(' · ') : '';
+}
+
+function toggleComplexity(code) {
+  const s = metaSel.C;
+  if (s.has(code)) s.delete(code); else s.add(code);
+  document.getElementById('cchip-' + code)?.classList.toggle('selected', s.has(code));
+  document.getElementById('f-complexity').value = [...s].sort().join(',');
+}
+
+function onDifficultyChange() {
+  const val = document.getElementById('f-difficulty').value;
+  const wrap = document.getElementById('complexity-wrap');
+  wrap.style.display = val === '3' ? '' : 'none';
+  if (val !== '3') {
+    metaSel.C.clear();
+    document.querySelectorAll('.complexity-chip').forEach(el => el.classList.remove('selected'));
+    document.getElementById('f-complexity').value = '';
+  }
+}
+
+function resetMetaCodes() {
+  Object.keys(metaSel).forEach(k => metaSel[k].clear());
+  document.querySelectorAll('.meta-chip').forEach(el => el.classList.remove('selected'));
+  document.querySelectorAll('.complexity-chip').forEach(el => el.classList.remove('selected'));
+  ['Q','F','R','O','A'].forEach(k => {
+    const h = document.getElementById('f-meta-' + k); if (h) h.value = '';
+    const d = document.getElementById('sel-' + k);    if (d) d.textContent = '';
+  });
+  const fc = document.getElementById('f-complexity'); if (fc) fc.value = '';
+  document.getElementById('complexity-wrap').style.display = 'none';
+}
+
+function restoreMetaCodes(q) {
+  // 편집 시 저장된 메타코드 복원
+  ['Q','F','R','O','A'].forEach(cat => {
+    const val = q['meta' + cat] || '';
+    val.split(',').filter(Boolean).forEach(code => toggleMeta(cat, code));
+  });
+  // 난도요소
+  if (q.complexity) {
+    document.getElementById('f-difficulty').value = '3';
+    onDifficultyChange();
+    q.complexity.split(',').filter(Boolean).forEach(code => toggleComplexity(code));
+  }
+}
+/* 구조: 영역코드-대분류코드-세분류코드 */
+const TYPE_DATA = {
+  '언어논리': {
+    code: 'LL',
+    mid: [
+      { code:'CR', name:'독해' },
+      { code:'AR', name:'논증' },
+      { code:'LG', name:'논리' },
+      { code:'CO', name:'비교·종합' },
+    ],
+    detail: {
+      CR: [
+        {code:'LL-CR-01',name:'주제 찾기'},{code:'LL-CR-02',name:'제목 찾기'},{code:'LL-CR-03',name:'중심 주장 찾기'},
+        {code:'LL-CR-04',name:'요지 찾기'},{code:'LL-CR-05',name:'핵심 내용 찾기'},{code:'LL-CR-06',name:'필자의 입장 파악'},
+        {code:'LL-CR-07',name:'내용 일치'},{code:'LL-CR-08',name:'내용 불일치'},{code:'LL-CR-09',name:'세부 정보 확인'},
+        {code:'LL-CR-10',name:'언급 여부 판단'},{code:'LL-CR-11',name:'사례 확인'},{code:'LL-CR-12',name:'개념 정의 확인'},
+        {code:'LL-CR-13',name:'문단 기능'},{code:'LL-CR-14',name:'문단 간 관계'},{code:'LL-CR-15',name:'글의 전개 방식'},
+        {code:'LL-CR-16',name:'글의 구조'},{code:'LL-CR-17',name:'문장 역할'},{code:'LL-CR-18',name:'접속어 추론'},
+        {code:'LL-CR-19',name:'문장 배열'},{code:'LL-CR-20',name:'문장 삽입'},
+        {code:'LL-CR-21',name:'빈칸 추론'},{code:'LL-CR-22',name:'함의 추론'},{code:'LL-CR-23',name:'사례 추론'},
+        {code:'LL-CR-24',name:'조건 추론'},{code:'LL-CR-25',name:'전제 추론'},
+      ],
+      AR: [
+        {code:'LL-AR-01',name:'결론 찾기'},{code:'LL-AR-02',name:'전제 찾기'},{code:'LL-AR-03',name:'논거 찾기'},
+        {code:'LL-AR-04',name:'논증 구조'},{code:'LL-AR-05',name:'논거의 역할'},{code:'LL-AR-06',name:'숨은 전제'},
+        {code:'LL-AR-07',name:'논증 강화'},{code:'LL-AR-08',name:'논증 약화'},{code:'LL-AR-09',name:'반례'},
+        {code:'LL-AR-10',name:'반론'},{code:'LL-AR-11',name:'재반론'},{code:'LL-AR-12',name:'논증 평가'},
+        {code:'LL-AR-13',name:'인과관계'},{code:'LL-AR-14',name:'상관관계'},{code:'LL-AR-15',name:'인과관계 오류'},
+        {code:'LL-AR-16',name:'일반화'},{code:'LL-AR-17',name:'유비논증'},{code:'LL-AR-18',name:'연역논증'},
+        {code:'LL-AR-19',name:'귀납논증'},{code:'LL-AR-20',name:'최선의 설명'},
+      ],
+      LG: [
+        {code:'LL-LG-01',name:'명제'},{code:'LL-LG-02',name:'부정'},{code:'LL-LG-03',name:'논리적 동치'},
+        {code:'LL-LG-04',name:'조건문'},{code:'LL-LG-05',name:'역'},{code:'LL-LG-06',name:'이'},
+        {code:'LL-LG-07',name:'대우'},{code:'LL-LG-08',name:'필요조건'},{code:'LL-LG-09',name:'충분조건'},
+        {code:'LL-LG-10',name:'필요충분조건'},{code:'LL-LG-11',name:'모순'},{code:'LL-LG-12',name:'반대'},
+        {code:'LL-LG-13',name:'참·거짓'},{code:'LL-LG-14',name:'양립 가능성'},{code:'LL-LG-15',name:'양화'},
+        {code:'LL-LG-16',name:'집합관계'},{code:'LL-LG-17',name:'논리적 오류'},{code:'LL-LG-18',name:'명제 결합'},
+        {code:'LL-LG-19',name:'조건 연쇄'},{code:'LL-LG-20',name:'다중 조건 추론'},
+      ],
+      CO: [
+        {code:'LL-CO-01',name:'두 제시문 비교'},{code:'LL-CO-02',name:'세 제시문 비교'},{code:'LL-CO-03',name:'공통점'},
+        {code:'LL-CO-04',name:'차이점'},{code:'LL-CO-05',name:'상반된 견해'},{code:'LL-CO-06',name:'견해 일치'},
+        {code:'LL-CO-07',name:'견해 불일치'},{code:'LL-CO-08',name:'제시문 종합'},{code:'LL-CO-09',name:'제시문 적용'},
+        {code:'LL-CO-10',name:'새로운 사례 적용'},{code:'LL-CO-11',name:'반론 비교'},{code:'LL-CO-12',name:'논거 비교'},
+      ],
+    },
+  },
+  '자료해석': {
+    code: 'DI',
+    mid: [
+      { code:'TB', name:'표' },
+      { code:'CH', name:'그래프' },
+      { code:'CA', name:'계산' },
+      { code:'IN', name:'자료추론' },
+      { code:'CO', name:'복합' },
+    ],
+    detail: {
+      TB: [
+        {code:'DI-TB-01',name:'표 기본 읽기'},{code:'DI-TB-02',name:'행 비교'},{code:'DI-TB-03',name:'열 비교'},
+        {code:'DI-TB-04',name:'행·열 교차'},{code:'DI-TB-05',name:'합계'},{code:'DI-TB-06',name:'소계'},
+        {code:'DI-TB-07',name:'평균'},{code:'DI-TB-08',name:'최대값'},{code:'DI-TB-09',name:'최소값'},
+        {code:'DI-TB-10',name:'순위'},{code:'DI-TB-11',name:'비중'},{code:'DI-TB-12',name:'구성비'},
+        {code:'DI-TB-13',name:'증감'},{code:'DI-TB-14',name:'증감률'},{code:'DI-TB-15',name:'전년 대비 비교'},
+        {code:'DI-TB-16',name:'항목 간 비교'},{code:'DI-TB-17',name:'누락값'},{code:'DI-TB-18',name:'조건별 필터링'},
+      ],
+      CH: [
+        {code:'DI-CH-01',name:'막대그래프'},{code:'DI-CH-02',name:'선그래프'},{code:'DI-CH-03',name:'원그래프'},
+        {code:'DI-CH-04',name:'누적막대'},{code:'DI-CH-05',name:'누적선'},{code:'DI-CH-06',name:'산점도'},
+        {code:'DI-CH-07',name:'복합그래프'},{code:'DI-CH-08',name:'그래프 간 비교'},{code:'DI-CH-09',name:'그래프 값 추론'},
+        {code:'DI-CH-10',name:'그래프 변화 추론'},{code:'DI-CH-11',name:'그래프 오류 찾기'},{code:'DI-CH-12',name:'그래프 변환'},
+      ],
+      CA: [
+        {code:'DI-CA-01',name:'덧셈·뺄셈'},{code:'DI-CA-02',name:'곱셈·나눗셈'},{code:'DI-CA-03',name:'분수 계산'},
+        {code:'DI-CA-04',name:'소수 계산'},{code:'DI-CA-05',name:'비율'},{code:'DI-CA-06',name:'비례'},
+        {code:'DI-CA-07',name:'백분율'},{code:'DI-CA-08',name:'증감률'},{code:'DI-CA-09',name:'증가율'},
+        {code:'DI-CA-10',name:'감소율'},{code:'DI-CA-11',name:'비중'},{code:'DI-CA-12',name:'평균'},
+        {code:'DI-CA-13',name:'가중평균'},{code:'DI-CA-14',name:'단위환산'},{code:'DI-CA-15',name:'근삿값'},
+        {code:'DI-CA-16',name:'비교계산'},{code:'DI-CA-17',name:'역산'},{code:'DI-CA-18',name:'연립계산'},
+        {code:'DI-CA-19',name:'수식 변환'},{code:'DI-CA-20',name:'계산 최소화'},
+      ],
+      IN: [
+        {code:'DI-IN-01',name:'단순 추론'},{code:'DI-IN-02',name:'복합 추론'},{code:'DI-IN-03',name:'자료 간 관계'},
+        {code:'DI-IN-04',name:'원인·결과'},{code:'DI-IN-05',name:'변화 추론'},{code:'DI-IN-06',name:'비율 추론'},
+        {code:'DI-IN-07',name:'순위 추론'},{code:'DI-IN-08',name:'범위 추론'},{code:'DI-IN-09',name:'상한·하한'},
+        {code:'DI-IN-10',name:'최대·최소 추론'},{code:'DI-IN-11',name:'누락자료 추론'},{code:'DI-IN-12',name:'역산 추론'},
+        {code:'DI-IN-13',name:'조건 변화'},{code:'DI-IN-14',name:'자료의 타당성'},{code:'DI-IN-15',name:'자료의 오류'},
+      ],
+      CO: [{code:'DI-CO-01',name:'표+그래프 복합'},{code:'DI-CO-02',name:'다중 자료 복합'},{code:'DI-CO-03',name:'복합 추론'}],
+    },
+  },
+  '상황판단': {
+    code: 'SJ',
+    mid: [
+      { code:'LW', name:'법률·규정' },
+      { code:'GM', name:'게임·규칙' },
+      { code:'CT', name:'수리' },
+      { code:'PR', name:'문제해결' },
+      { code:'ET', name:'기타' },
+    ],
+    detail: {
+      LW: [
+        {code:'SJ-LW-01',name:'법조문 찾기'},{code:'SJ-LW-02',name:'법조문 내용 확인'},{code:'SJ-LW-03',name:'법조문 해석'},
+        {code:'SJ-LW-04',name:'요건 판단'},{code:'SJ-LW-05',name:'효과 판단'},{code:'SJ-LW-06',name:'예외규정'},
+        {code:'SJ-LW-07',name:'단서조항'},{code:'SJ-LW-08',name:'준용규정'},{code:'SJ-LW-09',name:'기간 계산'},
+        {code:'SJ-LW-10',name:'숫자·기준 적용'},{code:'SJ-LW-11',name:'여러 조문 결합'},{code:'SJ-LW-12',name:'사례 적용'},
+        {code:'SJ-LW-13',name:'법률관계 추론'},{code:'SJ-LW-14',name:'권리·의무 판단'},{code:'SJ-LW-15',name:'처분·제재 판단'},
+        {code:'SJ-LW-16',name:'절차 판단'},{code:'SJ-LW-17',name:'법률상 예외 판단'},{code:'SJ-LW-18',name:'법률관계 비교'},
+      ],
+      GM: [
+        {code:'SJ-GM-01',name:'순서 정하기'},{code:'SJ-GM-02',name:'자리 배치'},{code:'SJ-GM-03',name:'그룹 배정'},
+        {code:'SJ-GM-04',name:'선택'},{code:'SJ-GM-05',name:'일정 편성'},{code:'SJ-GM-06',name:'조건 충족'},
+        {code:'SJ-GM-07',name:'조건 결합'},{code:'SJ-GM-08',name:'경우의 수'},{code:'SJ-GM-09',name:'가능한 경우'},
+        {code:'SJ-GM-10',name:'불가능한 경우'},{code:'SJ-GM-11',name:'반드시 참'},{code:'SJ-GM-12',name:'반드시 거짓'},
+        {code:'SJ-GM-13',name:'최댓값'},{code:'SJ-GM-14',name:'최솟값'},{code:'SJ-GM-15',name:'최소 횟수'},
+        {code:'SJ-GM-16',name:'최대 횟수'},{code:'SJ-GM-17',name:'전략 선택'},{code:'SJ-GM-18',name:'역추론'},
+        {code:'SJ-GM-19',name:'경우 분류'},{code:'SJ-GM-20',name:'제약조건 만족'},
+      ],
+      CT: [
+        {code:'SJ-CT-01',name:'사칙연산'},{code:'SJ-CT-02',name:'비율'},{code:'SJ-CT-03',name:'비례'},
+        {code:'SJ-CT-04',name:'평균'},{code:'SJ-CT-05',name:'방정식'},{code:'SJ-CT-06',name:'연립방정식'},
+        {code:'SJ-CT-07',name:'경우의 수'},{code:'SJ-CT-08',name:'확률'},{code:'SJ-CT-09',name:'거리·속력·시간'},
+        {code:'SJ-CT-10',name:'작업량'},{code:'SJ-CT-11',name:'농도'},{code:'SJ-CT-12',name:'나이'},
+        {code:'SJ-CT-13',name:'시계'},{code:'SJ-CT-14',name:'달력'},{code:'SJ-CT-15',name:'최대·최소'},
+        {code:'SJ-CT-16',name:'수열·패턴'},
+      ],
+      PR: [
+        {code:'SJ-PR-01',name:'자원 배분'},{code:'SJ-PR-02',name:'최적 선택'},{code:'SJ-PR-03',name:'절차 적용'},
+        {code:'SJ-PR-04',name:'조건 판단'},{code:'SJ-PR-05',name:'복합 추론'},
+      ],
+      ET: [{code:'SJ-ET-01',name:'기타'}],
+    },
+  },
+  '헌법': {
+    code: 'CO',
+    mid: [
+      { code:'GN', name:'헌법총론' },
+      { code:'BR', name:'기본권 총론' },
+      { code:'EQ', name:'평등권' },
+      { code:'FR', name:'자유권' },
+      { code:'SR', name:'사회권·참정권·청구권' },
+      { code:'GV', name:'통치구조' },
+      { code:'CT', name:'헌법재판' },
+      { code:'EL', name:'선거·정당·지방자치' },
+    ],
+    detail: {
+      GN: [
+        {code:'CO-GN-01',name:'전문 문구'},{code:'CO-GN-02',name:'전문 빈칸'},{code:'CO-GN-03',name:'전문 순서'},
+        {code:'CO-GN-04',name:'전문 내용 비교'},{code:'CO-GN-05',name:'전문과 본문 비교'},{code:'CO-GN-06',name:'전문의 법적 성격'},
+        {code:'CO-GN-07',name:'전문 관련 판례'},{code:'CO-GN-08',name:'국민·국민주권'},{code:'CO-GN-09',name:'민주주의'},
+        {code:'CO-GN-10',name:'법치주의'},{code:'CO-GN-11',name:'사회국가'},{code:'CO-GN-12',name:'문화국가'},
+        {code:'CO-GN-13',name:'국제평화주의'},{code:'CO-GN-14',name:'국토·평화통일'},{code:'CO-GN-15',name:'자유민주적 기본질서'},
+        {code:'CO-GN-16',name:'공화국 원리'},{code:'CO-GN-17',name:'개정절차'},{code:'CO-GN-18',name:'개정안 발의'},
+        {code:'CO-GN-19',name:'국민투표'},{code:'CO-GN-20',name:'개정의 한계'},
+      ],
+      BR: [
+        {code:'CO-BR-01',name:'기본권 주체'},{code:'CO-BR-02',name:'외국인의 기본권'},{code:'CO-BR-03',name:'법인의 기본권'},
+        {code:'CO-BR-04',name:'기본권 효력'},{code:'CO-BR-05',name:'대사인적 효력'},{code:'CO-BR-06',name:'기본권 보호영역'},
+        {code:'CO-BR-07',name:'기본권 제한'},{code:'CO-BR-08',name:'법률유보'},{code:'CO-BR-09',name:'과잉금지원칙'},
+        {code:'CO-BR-10',name:'목적의 정당성'},{code:'CO-BR-11',name:'수단의 적합성'},{code:'CO-BR-12',name:'침해의 최소성'},
+        {code:'CO-BR-13',name:'법익균형성'},{code:'CO-BR-14',name:'본질적 내용 침해금지'},{code:'CO-BR-15',name:'명확성원칙'},
+        {code:'CO-BR-16',name:'신뢰보호'},{code:'CO-BR-17',name:'소급입법금지'},{code:'CO-BR-18',name:'기본권 충돌'},
+        {code:'CO-BR-19',name:'기본권 경합'},{code:'CO-BR-20',name:'특별권력관계'},
+      ],
+      EQ: [
+        {code:'CO-EQ-01',name:'평등원칙 일반'},{code:'CO-EQ-02',name:'상대적 평등'},{code:'CO-EQ-03',name:'차별취급'},
+        {code:'CO-EQ-04',name:'합리적 이유'},{code:'CO-EQ-05',name:'자의금지원칙'},{code:'CO-EQ-06',name:'엄격한 심사'},
+        {code:'CO-EQ-07',name:'성별 차별'},{code:'CO-EQ-08',name:'연령 차별'},{code:'CO-EQ-09',name:'사회적 신분'},
+        {code:'CO-EQ-10',name:'국적 차별'},{code:'CO-EQ-11',name:'조세와 평등'},{code:'CO-EQ-12',name:'적극적 평등실현'},
+        {code:'CO-EQ-13',name:'평등권 판례 비교'},
+      ],
+      FR: [
+        {code:'CO-FR-01',name:'죄형법정주의'},{code:'CO-FR-02',name:'형벌불소급'},{code:'CO-FR-03',name:'명확성원칙'},
+        {code:'CO-FR-04',name:'유추해석금지'},{code:'CO-FR-05',name:'적법절차'},{code:'CO-FR-06',name:'영장주의'},
+        {code:'CO-FR-07',name:'체포'},{code:'CO-FR-08',name:'구속'},{code:'CO-FR-09',name:'압수·수색'},
+        {code:'CO-FR-10',name:'변호인의 조력'},{code:'CO-FR-11',name:'무죄추정'},{code:'CO-FR-12',name:'진술거부권'},
+        {code:'CO-FR-13',name:'사생활의 비밀'},{code:'CO-FR-14',name:'개인정보자기결정권'},{code:'CO-FR-15',name:'통신의 자유'},
+        {code:'CO-FR-16',name:'주거의 자유'},{code:'CO-FR-17',name:'양심의 자유'},{code:'CO-FR-18',name:'종교의 자유'},
+        {code:'CO-FR-19',name:'학문의 자유'},{code:'CO-FR-20',name:'예술의 자유'},{code:'CO-FR-21',name:'표현의 자유'},
+        {code:'CO-FR-22',name:'언론·출판'},{code:'CO-FR-23',name:'사전검열'},{code:'CO-FR-24',name:'알 권리'},
+        {code:'CO-FR-25',name:'집회의 자유'},{code:'CO-FR-26',name:'결사의 자유'},{code:'CO-FR-27',name:'거주·이전'},
+        {code:'CO-FR-28',name:'직업선택'},{code:'CO-FR-29',name:'직업수행'},{code:'CO-FR-30',name:'재산권'},
+        {code:'CO-FR-31',name:'재산권 사회적 제약'},{code:'CO-FR-32',name:'공용수용'},{code:'CO-FR-33',name:'손실보상'},
+      ],
+      SR: [
+        {code:'CO-SR-01',name:'인간다운 생활'},{code:'CO-SR-02',name:'사회보장'},{code:'CO-SR-03',name:'교육받을 권리'},
+        {code:'CO-SR-04',name:'교육제도'},{code:'CO-SR-05',name:'근로의 권리'},{code:'CO-SR-06',name:'근로3권'},
+        {code:'CO-SR-07',name:'환경권'},{code:'CO-SR-08',name:'혼인·가족생활'},{code:'CO-SR-09',name:'보건권'},
+        {code:'CO-SR-10',name:'선거권'},{code:'CO-SR-11',name:'공무담임권'},{code:'CO-SR-12',name:'청원권'},
+        {code:'CO-SR-13',name:'재판청구권'},{code:'CO-SR-14',name:'국가배상청구권'},{code:'CO-SR-15',name:'형사보상청구권'},
+        {code:'CO-SR-16',name:'범죄피해자 구조청구권'},
+      ],
+      GV: [
+        {code:'CO-GV-01',name:'국회 구성'},{code:'CO-GV-02',name:'국회의원 자격'},{code:'CO-GV-03',name:'국회의원 선거'},
+        {code:'CO-GV-04',name:'면책특권'},{code:'CO-GV-05',name:'불체포특권'},{code:'CO-GV-06',name:'국회의원의 의무'},
+        {code:'CO-GV-07',name:'법률안 발의'},{code:'CO-GV-08',name:'법률안 의결'},{code:'CO-GV-09',name:'법률 공포'},
+        {code:'CO-GV-10',name:'예산'},{code:'CO-GV-11',name:'결산'},{code:'CO-GV-12',name:'국정감사'},
+        {code:'CO-GV-13',name:'국정조사'},{code:'CO-GV-14',name:'탄핵소추'},{code:'CO-GV-15',name:'국회 의사절차'},
+        {code:'CO-GV-16',name:'대통령 지위'},{code:'CO-GV-17',name:'대통령 선거'},{code:'CO-GV-18',name:'대통령 임기'},
+        {code:'CO-GV-19',name:'대통령 권한'},{code:'CO-GV-20',name:'법률안 거부권'},{code:'CO-GV-21',name:'사면'},
+        {code:'CO-GV-22',name:'긴급재정경제명령'},{code:'CO-GV-23',name:'긴급명령'},{code:'CO-GV-24',name:'계엄'},
+        {code:'CO-GV-25',name:'국무총리'},{code:'CO-GV-26',name:'국무위원'},{code:'CO-GV-27',name:'국무회의'},
+        {code:'CO-GV-28',name:'행정각부'},{code:'CO-GV-29',name:'대통령과 행정부 관계'},
+        {code:'CO-GV-30',name:'사법권'},{code:'CO-GV-31',name:'법관 독립'},{code:'CO-GV-32',name:'법관 신분보장'},
+        {code:'CO-GV-33',name:'대법원'},{code:'CO-GV-34',name:'군사법원'},{code:'CO-GV-35',name:'재판공개'},
+        {code:'CO-GV-36',name:'법원의 조직·권한'},
+      ],
+      CT: [
+        {code:'CO-CT-01',name:'위헌법률심판 대상'},{code:'CO-CT-02',name:'재판의 전제성'},{code:'CO-CT-03',name:'법률의 의미'},
+        {code:'CO-CT-04',name:'위헌결정'},{code:'CO-CT-05',name:'합헌결정'},{code:'CO-CT-06',name:'한정위헌'},
+        {code:'CO-CT-07',name:'위헌결정의 효력'},{code:'CO-CT-08',name:'헌법소원 대상'},{code:'CO-CT-09',name:'권리구제형'},
+        {code:'CO-CT-10',name:'위헌심사형'},{code:'CO-CT-11',name:'자기관련성'},{code:'CO-CT-12',name:'현재성'},
+        {code:'CO-CT-13',name:'직접성'},{code:'CO-CT-14',name:'보충성'},{code:'CO-CT-15',name:'청구기간'},
+        {code:'CO-CT-16',name:'공권력 행사'},{code:'CO-CT-17',name:'공권력 불행사'},
+        {code:'CO-CT-18',name:'권한쟁의 대상'},{code:'CO-CT-19',name:'당사자능력'},{code:'CO-CT-20',name:'권한의 존부'},
+        {code:'CO-CT-21',name:'권한침해'},{code:'CO-CT-22',name:'청구요건'},
+        {code:'CO-CT-23',name:'탄핵심판'},{code:'CO-CT-24',name:'정당해산'},
+        {code:'CO-CT-25',name:'헌법재판소 구성'},{code:'CO-CT-26',name:'헌법재판소 결정 효력'},
+      ],
+      EL: [
+        {code:'CO-EL-01',name:'정당제도'},{code:'CO-EL-02',name:'정당의 자유'},{code:'CO-EL-03',name:'정당의 등록'},
+        {code:'CO-EL-04',name:'정당해산'},{code:'CO-EL-05',name:'선거의 기본원칙'},{code:'CO-EL-06',name:'보통선거'},
+        {code:'CO-EL-07',name:'평등선거'},{code:'CO-EL-08',name:'직접선거'},{code:'CO-EL-09',name:'비밀선거'},
+        {code:'CO-EL-10',name:'선거구'},{code:'CO-EL-11',name:'선거운동'},{code:'CO-EL-12',name:'선거권 제한'},
+        {code:'CO-EL-13',name:'선거 관련 평등'},{code:'CO-EL-14',name:'지방자치제도'},{code:'CO-EL-15',name:'지방자치단체'},
+        {code:'CO-EL-16',name:'지방의회'},{code:'CO-EL-17',name:'조례'},{code:'CO-EL-18',name:'주민의 권리'},
+        {code:'CO-EL-19',name:'지방자치단체의 권한'},
+      ],
+    },
+  },
+};
+
+/* 대분류 select 갱신 */
+function onSubjectChange() {
+  onExamTypeChange(); // 헌법 활성화 처리
+  const subj = document.getElementById('f-subject').value;
+  const midEl = document.getElementById('f-subtype-mid');
+  const detEl = document.getElementById('f-subtype-detail');
+
+  clearSubtype();
+  midEl.innerHTML = '<option value="">대분류 선택</option>';
+  detEl.innerHTML = '<option value="">세분류 선택</option>';
+
+  if (!subj || !TYPE_DATA[subj]) {
+    midEl.disabled = true; detEl.disabled = true;
+    return;
+  }
+  TYPE_DATA[subj].mid.forEach(m => {
+    midEl.innerHTML += `<option value="${m.code}">${m.code} · ${m.name}</option>`;
+  });
+  midEl.disabled = false;
+  detEl.disabled = true;
+}
+
+/* 세분류 select 갱신 */
+function onMidTypeChange() {
+  const subj   = document.getElementById('f-subject').value;
+  const midCode = document.getElementById('f-subtype-mid').value;
+  const detEl  = document.getElementById('f-subtype-detail');
+
+  clearSubtype();
+  detEl.innerHTML = '<option value="">세분류 선택</option>';
+  if (!midCode || !TYPE_DATA[subj]?.detail[midCode]) {
+    detEl.disabled = true; return;
+  }
+  TYPE_DATA[subj].detail[midCode].forEach(d => {
+    detEl.innerHTML += `<option value="${d.code}">${d.code} · ${d.name}</option>`;
+  });
+  detEl.disabled = false;
+}
+
+/* 세분류 선택 완료 */
+function onDetailTypeChange() {
+  const code = document.getElementById('f-subtype-detail').value;
+  if (!code) { clearSubtype(); return; }
+
+  // 해당 항목 찾기
+  const subj = document.getElementById('f-subject').value;
+  const midCode = document.getElementById('f-subtype-mid').value;
+  const item = TYPE_DATA[subj]?.detail[midCode]?.find(d => d.code === code);
+  if (!item) return;
+
+  document.getElementById('f-subtype').value     = code;
+  document.getElementById('subtype-code').textContent = code;
+  document.getElementById('subtype-name').textContent = item.name;
+  document.getElementById('subtype-result').style.display = 'flex';
+}
+
+function clearSubtype() {
+  document.getElementById('f-subtype').value = '';
+  document.getElementById('subtype-result').style.display = 'none';
+  document.getElementById('subtype-code').textContent = '';
+  document.getElementById('subtype-name').textContent = '';
+  document.getElementById('f-subtype-detail').value = '';
+}
+function addSection(defaultType) {
+  sectionCount++;
+  const sid  = sectionCount;
+  const type = defaultType || '지문';
+  sections.push({ id: sid, type, customLabel: '', text: '', imgFiles: [] });
+
+  const wrap = document.createElement('div');
+  wrap.className = 'section-block';
+  wrap.id = 'section-block-' + sid;
+
+  const typeOpts = SECTION_TYPES.map(t =>
+    `<option value="${t}" ${t === type ? 'selected' : ''}>${t}</option>`
+  ).join('');
+
+  wrap.innerHTML = `
+    <div class="section-block-head">
+      <span class="section-drag-handle" title="순서 변경">⠿</span>
+      <select class="section-type-select" id="stype-${sid}" onchange="onSectionTypeChange(${sid},this.value)">
+        ${typeOpts}
+      </select>
+      <input class="section-custom-label" id="slabel-${sid}"
+        placeholder="표시 레이블 (예: &lt;보기&gt;, 없으면 자동)"
+        oninput="sections.find(s=>s.id===${sid}).customLabel=this.value">
+      <span style="font-size:11.5px;color:var(--muted);flex:1" id="scount-${sid}"></span>
+      <button class="btn btn-danger btn-sm" onclick="removeSection(${sid})">✕</button>
+    </div>
+    <div class="section-block-body">
+      <textarea rows="5" id="stext-${sid}"
+        style="font-size:13px;line-height:1.8;resize:vertical"
+        placeholder="내용을 입력하세요"
+        oninput="sections.find(s=>s.id===${sid}).text=this.value"></textarea>
+      <div>
+        <div class="img-section-label" style="margin-bottom:8px">
+          <span style="font-size:12px;font-weight:600;color:var(--muted)">이 섹션 이미지</span>
+          <span style="font-size:11.5px;color:var(--muted);margin-left:6px">여러 장 가능 · 드래그 또는 클릭</span>
+        </div>
+        <div class="upload-zone mini" id="sdrop-${sid}"
+          ondragover="onSectionDragOver(event,${sid})"
+          ondragleave="onSectionDragLeave(${sid})"
+          ondrop="onSectionDrop(event,${sid})">
+          <input type="file" accept="image/*" multiple onchange="onSectionFileSelect(event,${sid})">
+          <span style="font-size:16px">📎</span>
+          <span style="font-size:12px;color:var(--muted)">드래그 또는 클릭</span>
+        </div>
+        <div class="img-preview-list" id="simglist-${sid}" style="margin-top:8px"></div>
+      </div>
+    </div>`;
+
+  document.getElementById('section-list').appendChild(wrap);
+  renumberSections();
+}
+
+function removeSection(sid) {
+  sections = sections.filter(s => s.id !== sid);
+  const el = document.getElementById('section-block-' + sid);
+  if (el) el.remove();
+  renumberSections();
+}
+
+function onSectionTypeChange(sid, val) {
+  const s = sections.find(s => s.id === sid);
+  if (s) s.type = val;
+}
+
+function renumberSections() {
+  sections.forEach((s, i) => {
+    const el = document.getElementById('scount-' + s.id);
+    if (el) el.textContent = `#${i + 1}`;
+  });
+}
+
+/* 섹션 이미지 업로드 */
+function onSectionDragOver(e, sid) { e.preventDefault(); document.getElementById('sdrop-'+sid).classList.add('drag'); }
+function onSectionDragLeave(sid)   { document.getElementById('sdrop-'+sid).classList.remove('drag'); }
+function onSectionDrop(e, sid)     { e.preventDefault(); onSectionDragLeave(sid); addSectionImgs([...e.dataTransfer.files], sid); }
+function onSectionFileSelect(e, sid){ addSectionImgs([...e.target.files], sid); }
+
+function addSectionImgs(files, sid) {
+  const s = sections.find(s => s.id === sid);
+  if (!s) return;
+  files.filter(f => f.type.startsWith('image/')).forEach(f => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const entry = { file: f, name: f.name, src: ev.target.result };
+      s.imgFiles.push(entry);
+      const idx = s.imgFiles.length - 1;
+      const list = document.getElementById('simglist-' + sid);
+      const el = document.createElement('div');
+      el.className = 'img-preview-item';
+      el.id = `simgitem-${sid}-${idx}`;
+      el.innerHTML = `
+        <div class="img-order">#${idx + 1}</div>
+        <div class="img-remove" onclick="removeSectionImg(${sid},${idx})">✕</div>
+        <img src="${ev.target.result}" alt="">
+        <div class="img-preview-name">${f.name}</div>`;
+      list.appendChild(el);
+      refreshSectionImgOrder(sid);
+    };
+    reader.readAsDataURL(f);
+  });
+}
+
+function removeSectionImg(sid, idx) {
+  const s = sections.find(s => s.id === sid);
+  if (s) s.imgFiles[idx] = null;
+  const el = document.getElementById(`simgitem-${sid}-${idx}`);
+  if (el) el.remove();
+  refreshSectionImgOrder(sid);
+}
+
+function refreshSectionImgOrder(sid) {
+  const s = sections.find(s => s.id === sid);
+  if (!s) return;
+  let order = 1;
+  s.imgFiles.forEach((item, i) => {
+    if (!item) return;
+    const el = document.getElementById(`simgitem-${sid}-${i}`);
+    const badge = el?.querySelector('.img-order');
+    if (badge) badge.textContent = '#' + order++;
+  });
+}
+
+/*
+   연결 문제 ID 관리
+*/
+function toggleLinked(checkbox) {
+  document.getElementById('linked-wrap').style.display = checkbox.checked ? 'flex' : 'none';
+  if (!checkbox.checked) {
+    document.getElementById('linked-id-list').innerHTML = '';
+    linkedIds = []; linkedCount = 0;
+  } else if (linkedIds.length === 0) {
+    addLinkedId();
+  }
+}
+
+function addLinkedId() {
+  linkedCount++;
+  const rowId = linkedCount;
+  linkedIds.push({ rowId, value: '' });
+  const row = document.createElement('div');
+  row.className = 'linked-id-row';
+  row.id = 'linked-row-' + rowId;
+  row.innerHTML = `
+    <input type="text" id="linked-val-${rowId}"
+      placeholder="예) deep_moi_2024_상황판단_40"
+      oninput="linkedIds.find(r=>r.rowId===${rowId}).value=this.value">
+    <button class="btn btn-danger btn-sm" onclick="removeLinkedId(${rowId})">✕</button>`;
+  document.getElementById('linked-id-list').appendChild(row);
+}
+
+function removeLinkedId(rowId) {
+  linkedIds = linkedIds.filter(r => r.rowId !== rowId);
+  document.getElementById('linked-row-' + rowId)?.remove();
+}
+
+/*
+   이미지 업로드 — 선지 제외한 구 메서드 제거 (섹션으로 통합)
+*/
+// onDragOver / onDragLeave / onDrop / onFileSelect / addImgFiles /
+// renderSlotPreview / removeSlotImg / refreshSlotOrder
+// → 섹션별 함수로 대체됨. 선지 이미지는 아래 choice 함수들이 담당.
+function renderChoices() {
+  const n = parseInt(document.getElementById('f-choicecount').value);
+
+  // 보기 목록
+  const container = document.getElementById('choices-container');
+  container.innerHTML = '';
+  for (let i = 1; i <= n; i++) {
+    container.innerHTML += `
+      <div class="choice-row">
+        <div class="choice-num" id="choice-num-${i}" onclick="setAnswer(${i})">${i}</div>
+        <input type="text" id="choice-${i}" placeholder="${i}번 보기 입력">
+      </div>`;
+  }
+  answerIdx = null;
+  document.getElementById('answer-hint-text').textContent = '번호를 클릭해 정답을 선택하세요.';
+
+  // 선지별 해설 행
+  renderChoiceExplanations(n);
+
+  // 선지 이미지 슬롯도 함께 갱신
+  renderChoiceImgSlots(n);
+  imgs.choices = {};
+}
+
+function renderChoiceExplanations(n) {
+  const list = document.getElementById('choice-explanation-list');
+  list.innerHTML = '';
+  for (let i = 1; i <= n; i++) {
+    const row = document.createElement('div');
+    row.className = 'choice-exp-row';
+    row.id = 'choice-exp-row-' + i;
+    row.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0">
+        <div class="choice-exp-badge wrong" id="choice-exp-badge-${i}">${i}</div>
+        <div class="choice-exp-label" id="choice-exp-label-${i}">오답</div>
+      </div>
+      <textarea class="choice-exp-textarea" id="choice-exp-${i}"
+        placeholder="${i}번 선지 해설 (선택) — 왜 맞는지/틀린지 설명"></textarea>`;
+    list.appendChild(row);
+  }
+}
+
+function setAnswer(n) {
+  answerIdx = n;
+  const count = parseInt(document.getElementById('f-choicecount').value);
+  for (let i = 1; i <= count; i++) {
+    // 보기 번호 배지
+    document.getElementById('choice-num-' + i).classList.toggle('answer', i === n);
+    // 선지 해설 행 하이라이트
+    const row   = document.getElementById('choice-exp-row-' + i);
+    const badge = document.getElementById('choice-exp-badge-' + i);
+    const label = document.getElementById('choice-exp-label-' + i);
+    if (i === n) {
+      row.classList.add('is-answer');
+      badge.className = 'choice-exp-badge correct';
+      label.textContent = '정답';
+    } else {
+      row.classList.remove('is-answer');
+      badge.className = 'choice-exp-badge wrong';
+      label.textContent = '오답';
+    }
+  }
+  document.getElementById('answer-hint-text').textContent = `✅ 정답: ${n}번`;
+}
+
+function onExamTypeChange() {
+  const val = document.getElementById('f-examType').value;
+  const subjEl = document.getElementById('f-subject');
+  const hOpt = subjEl.querySelector('option[value="헌법"]');
+  if (val.startsWith('basic')) {
+    hOpt.disabled = true;
+    if (subjEl.value === '헌법') subjEl.value = '';
+  } else {
+    hOpt.disabled = false;
+  }
+}
+
+/*
+   법조문 복수 관리
+*/
+function toggleStatute(checkbox) {
+  const wrap    = document.getElementById('statute-wrap');
+  const addBtn  = document.getElementById('btn-add-statute');
+  const isOn    = checkbox.checked;
+  wrap.style.display   = isOn ? 'flex' : 'none';
+  addBtn.style.display = isOn ? ''     : 'none';
+  if (isOn && document.getElementById('statute-blocks').children.length === 0) {
+    addStatuteBlock(); // 첫 번째 블록 자동 생성
+  }
+  if (!isOn) {
+    document.getElementById('statute-blocks').innerHTML = '';
+    statuteCount = 0;
+  }
+}
+
+function addStatuteBlock() {
+  statuteCount++;
+  const idx   = statuteCount;
+  const block = document.createElement('div');
+  block.className = 'statute-block';
+  block.id = 'statute-block-' + idx;
+  block.innerHTML = `
+    <div class="statute-block-head">
+      <span class="statute-block-num">법조문 ${idx}</span>
+      <button class="btn btn-danger btn-sm" onclick="removeStatuteBlock(${idx})">✕ 삭제</button>
+    </div>
+    <div class="statute-block-body">
+      <div class="field">
+        <label class="field-label">법령명</label>
+        <input type="text" id="statute-title-${idx}" placeholder="예) 국가공무원법 제26조의5, 공직선거법 제53조 등">
+      </div>
+      <div class="field">
+        <label class="field-label">조문 내용</label>
+        <textarea id="statute-content-${idx}" rows="6"
+          style="font-family:var(--mono);font-size:12.5px;line-height:1.8"
+          placeholder="제1조(목적) 이 법은 ...&#10;① ...&#10;② ...&#10;  1. ...&#10;  2. ..."></textarea>
+      </div>
+    </div>`;
+  document.getElementById('statute-blocks').appendChild(block);
+  renumberStatuteBlocks();
+}
+
+function removeStatuteBlock(idx) {
+  const el = document.getElementById('statute-block-' + idx);
+  if (el) el.remove();
+  renumberStatuteBlocks();
+}
+
+function renumberStatuteBlocks() {
+  document.querySelectorAll('.statute-block').forEach((block, i) => {
+    const label = block.querySelector('.statute-block-num');
+    if (label) label.textContent = `법조문 ${i + 1}`;
+  });
+}
+
+function collectStatutes() {
+  const results = [];
+  document.querySelectorAll('.statute-block').forEach(block => {
+    const id      = block.id.split('-').pop();
+    const title   = (document.getElementById('statute-title-'   + id)?.value || '').trim();
+    const content = (document.getElementById('statute-content-' + id)?.value || '').trim();
+    if (title || content) results.push({ title: title || null, content: content || null });
+  });
+  return results;
+}
+
+/*
+   선지 이미지 슬롯 렌더
+*/
+function renderChoiceImgSlots(n) {
+  const wrap = document.getElementById('choice-img-slots');
+  wrap.innerHTML = '';
+  for (let i = 1; i <= n; i++) {
+    const row = document.createElement('div');
+    row.className = 'choice-img-row';
+    row.id = 'choice-img-row-' + i;
+    row.innerHTML = `
+      <div class="choice-img-slot-num">${i}</div>
+      <div class="choice-img-slot-label" id="choice-img-label-${i}">${i}번 선지 — 이미지 없음</div>
+      <label class="btn-upload-choice">
+        📎 이미지 첨부
+        <input type="file" accept="image/*" onchange="onChoiceImgSelect(event,${i})">
+      </label>
+      <button class="btn btn-danger btn-sm" id="choice-img-rm-${i}" style="display:none" onclick="removeChoiceImg(${i})">✕</button>
+    `;
+    wrap.appendChild(row);
+  }
+}
+
+function onChoiceImgSelect(e, choiceNum) {
+  const file = e.target.files[0];
+  if (!file || !file.type.startsWith('image/')) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    imgs.choices[choiceNum] = { file, name: file.name, src: ev.target.result };
+    refreshChoiceImgSlot(choiceNum);
+  };
+  reader.readAsDataURL(file);
+}
+
+function refreshChoiceImgSlot(i) {
+  const data = imgs.choices[i];
+  const row   = document.getElementById('choice-img-row-' + i);
+  const label = document.getElementById('choice-img-label-' + i);
+  const rmBtn = document.getElementById('choice-img-rm-' + i);
+  if (!data) {
+    row.classList.remove('has-img');
+    label.innerHTML = `${i}번 선지 — 이미지 없음`;
+    rmBtn.style.display = 'none';
+  } else {
+    row.classList.add('has-img');
+    label.innerHTML = `<img class="choice-img-thumb" src="${data.src}">
+      <span class="choice-img-filename">${data.name}</span>`;
+    rmBtn.style.display = '';
+  }
+}
+
+function removeChoiceImg(i) {
+  delete imgs.choices[i];
+  refreshChoiceImgSlot(i);
+}
+
+/*
+   Add question
+*/
+function addQuestion() {
+  const examType = document.getElementById('f-examType').value;
+  const subject  = document.getElementById('f-subject').value;
+  const year     = document.getElementById('f-year').value;
+  const qnum     = document.getElementById('f-qnum').value;
+  const question = document.getElementById('f-question').value.trim();
+  const n        = parseInt(document.getElementById('f-choicecount').value);
+
+  if (!examType)  return toast('시험 유형을 선택해 주세요.', '⚠️');
+  if (!subject)   return toast('영역을 선택해 주세요.', '⚠️');
+  if (!year)      return toast('출제연도를 선택해 주세요.', '⚠️');
+  if (!qnum)      return toast('문번을 입력해 주세요.', '⚠️');
+  if (!question)  return toast('문제 내용을 입력해 주세요.', '⚠️');
+  if (!answerIdx) return toast('정답 번호를 선택해 주세요.', '⚠️');
+
+  const choices = [];
+  for (let i = 1; i <= n; i++) {
+    const v = document.getElementById('choice-' + i).value.trim();
+    if (!v) return toast(`${i}번 보기를 입력해 주세요.`, '⚠️');
+    choices.push(v);
+  }
+
+  // 섹션 수집 (지문/보기/상황 등)
+  const sectionData = sections
+    .filter(s => s.text.trim() || s.imgFiles.filter(Boolean).length)
+    .map(s => ({
+      type:        s.type,
+      label:       s.customLabel.trim() || null,
+      text:        s.text.trim() || null,
+      images:      s.imgFiles.filter(Boolean).map(e => e.name),
+    }));
+
+  // 선지별 해설 수집
+  const choiceExplanations = {};
+  for (let i = 1; i <= n; i++) {
+    const v = document.getElementById('choice-exp-' + i)?.value.trim();
+    if (v) choiceExplanations[String(i)] = v;
+  }
+
+  // 선지 이미지
+  const choiceImages = {};
+  Object.entries(imgs.choices).forEach(([k, v]) => {
+    if (v) choiceImages[k] = v.name;
+  });
+
+  // 연결 문제 ID
+  const isLinked = document.getElementById('f-linked-toggle').checked;
+  const linkedQuestionIds = isLinked
+    ? linkedIds.map(r => r.value.trim()).filter(Boolean)
+    : [];
+
+  // 법조문 복수
+  const hasStatute = document.getElementById('f-statute-toggle').checked;
+  const statutes   = hasStatute ? collectStatutes() : [];
+
+  const id = `${examType}_${year}_${subject}_${String(qnum).padStart(2,'0')}`;
+
+  const newQ = {
+    id,
+    examType,
+    subject,
+    year:               parseInt(year),
+    number:             parseInt(qnum),
+    bookType:           document.getElementById('f-booktype').value.trim() || null,
+    subtype:            document.getElementById('f-subtype').value.trim() || null,
+    difficulty:         parseInt(document.getElementById('f-difficulty').value),
+    complexity:         document.getElementById('f-complexity').value || null,
+    metaQ:              document.getElementById('f-meta-Q').value || null,
+    metaF:              document.getElementById('f-meta-F').value || null,
+    metaR:              document.getElementById('f-meta-R').value || null,
+    metaO:              document.getElementById('f-meta-O').value || null,
+    metaA:              document.getElementById('f-meta-A').value || null,
+    sections:           sectionData,
+    linkedQuestionIds,
+    question,
+    choices,
+    choiceImages,
+    answer:             answerIdx,
+    choiceExplanations,
+    explanation:        document.getElementById('f-explanation').value.trim() || null,
+    statutes,
+  };
+
+  if (editingId) {
+    // 수정 모드: 기존 항목 교체
+    const idx = questions.findIndex(x => x.id === editingId);
+    if (idx !== -1) questions[idx] = newQ;
+    else questions.push(newQ);
+    editingId = null;
+    updateEditModeBanner(false);
+    toast(`${subject} ${year}년 ${qnum}번 수정 완료`, '💾');
+  } else {
+    // 신규 등록: 중복 체크
+    if (questions.find(x => x.id === id))
+      return toast('동일 ID 문제가 이미 있습니다. 연도·번호를 확인하세요.', '⚠️');
+    questions.push(newQ);
+    toast(`${subject} ${year}년 ${qnum}번 추가 완료 (섹션 ${sectionData.length}개)`, '✅');
+  }
+
+  updateCountBadge();
+  saveToStorage();
+  resetForm();
+}
+
+function resetForm() {
+  editingId = null;
+  updateEditModeBanner(false);
+  ['f-examType','f-subject','f-year'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-qnum').value = '';
+  document.getElementById('f-subtype').value = '';
+  document.getElementById('f-booktype').value = '';
+  clearSubtype();
+  document.getElementById('f-subtype-mid').innerHTML = '<option value="">영역을 먼저 선택하세요</option>';
+  document.getElementById('f-subtype-mid').disabled = true;
+  document.getElementById('f-subtype-detail').innerHTML = '<option value="">대분류를 선택하세요</option>';
+  document.getElementById('f-subtype-detail').disabled = true;
+  document.getElementById('f-difficulty').value = '3';
+  document.getElementById('f-choicecount').value = '5';
+  document.getElementById('f-question').value = '';
+  document.getElementById('f-explanation').value = '';
+  // 섹션 초기화
+  sections = []; sectionCount = 0;
+  document.getElementById('section-list').innerHTML = '';
+  addSection('지문'); // 기본 섹션 1개 복원
+  // 연결 문제 초기화
+  const linkedToggle = document.getElementById('f-linked-toggle');
+  linkedToggle.checked = false;
+  document.getElementById('linked-wrap').style.display = 'none';
+  document.getElementById('linked-id-list').innerHTML = '';
+  linkedIds = []; linkedCount = 0;
+  // 법조문 초기화
+  const sToggle = document.getElementById('f-statute-toggle');
+  sToggle.checked = false;
+  document.getElementById('statute-wrap').style.display   = 'none';
+  document.getElementById('btn-add-statute').style.display = 'none';
+  document.getElementById('statute-blocks').innerHTML = '';
+  statuteCount = 0;
+  // 선지 이미지 초기화
+  answerIdx = null;
+  imgs = { choices: {} };
+  renderChoices();
+  resetMetaCodes();
+}
+
+/*
+   Table render
+*/
+function renderTable() {
+  const filter = document.getElementById('filter-subject').value;
+  const filtered = filter ? questions.filter(q => q.subject === filter) : questions;
+  const tbody = document.getElementById('q-tbody');
+
+  // Stats
+  document.getElementById('s-total').textContent = questions.length;
+  ['헌법','언어논리','자료해석','상황판단'].forEach(s => {
+    document.getElementById('s-' + s).textContent = questions.filter(q => q.subject === s).length;
+  });
+  document.getElementById('q-count').textContent = questions.length;
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="es-icon">📭</div><div class="es-title">문제가 없습니다</div></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map((q, i) => `
+    <tr>
+      <td style="color:var(--muted);font-family:var(--mono)">${i+1}</td>
+      <td><span class="badge badge-${q.subject}">${q.subject}</span></td>
+      <td style="font-family:var(--mono);font-size:12px">${q.year}${q.bookType ? ' · <b>'+q.bookType+'형</b>' : ''} · Q${String(q.number).padStart(2,'0')}</td>
+      <td style="font-size:12px;color:var(--muted)">${q.subtype || '—'}</td>
+      <td>
+        <div class="q-preview">${q.question}</div>
+        <div class="q-meta">${q.id}</div>
+      </td>
+      <td style="font-weight:700;color:var(--accent);font-family:var(--mono)">${q.answer}번</td>
+      <td style="text-align:center">${(() => {
+        const total = (q.sections||[]).reduce((a,s)=>a+(s.images?.length||0),0) + Object.keys(q.choiceImages||{}).length;
+        return total ? `<span class="badge badge-img">📎${total}</span>` : '—';
+      })()}</td>
+      <td style="font-size:12px;font-weight:600;color:${q.difficulty===3?'#DC2626':q.difficulty===2?'#D97706':'#16A34A'}">${{1:'하',2:'중',3:'상'}[q.difficulty]}</td>
+      <td style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn btn-secondary btn-sm" onclick="editQ('${q.id}')">✏️ 수정</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteQ('${q.id}')">삭제</button>
+      </td>
+    </tr>`).join('');
+}
+
+function deleteQ(id) {
+  questions = questions.filter(q => q.id !== id);
+  updateCountBadge();
+  saveToStorage();
+  renderTable();
+  toast('문제가 삭제됐습니다.', '🗑');
+}
+
+/* ── 수정 모드 ── */
+let editingId = null; // 수정 중인 문제 ID (null = 신규 등록)
+
+function editQ(id) {
+  const q = questions.find(x => x.id === id);
+  if (!q) return;
+  editingId = id;
+
+  // 등록 페이지로 이동
+  showPage('register');
+  document.querySelectorAll('.sb-item').forEach(el => el.classList.remove('active'));
+  document.querySelector('.sb-item[onclick*="register"]').classList.add('active');
+
+  // 기본 정보 채우기
+  document.getElementById('f-examType').value   = q.examType   || '';
+  onExamTypeChange();
+  document.getElementById('f-subject').value    = q.subject    || '';
+  document.getElementById('f-year').value       = q.year       || '';
+  document.getElementById('f-qnum').value       = q.number     || '';
+  document.getElementById('f-booktype').value   = q.bookType   || '';
+  document.getElementById('f-subtype').value    = q.subtype    || '';
+  document.getElementById('f-difficulty').value = q.difficulty || '2';
+
+  // 세부 유형 복원
+  if (q.subtype && q.subject) {
+    onSubjectChange(); // 대분류 populate
+    const subj = q.subject;
+    const data = TYPE_DATA[subj];
+    if (data) {
+      // code에서 midCode 추출 (예: LL-CR-01 → CR)
+      const parts = q.subtype.split('-');
+      const midCode = parts[1];
+      if (midCode && data.detail[midCode]) {
+        document.getElementById('f-subtype-mid').value = midCode;
+        onMidTypeChange();
+        document.getElementById('f-subtype-detail').value = q.subtype;
+        onDetailTypeChange();
+      }
+    }
+  }
+
+  // 섹션 복원
+  sections = []; sectionCount = 0;
+  document.getElementById('section-list').innerHTML = '';
+  (q.sections || []).forEach(s => {
+    addSection(s.type);
+    const sid = sectionCount;
+    document.getElementById('stext-' + sid).value   = s.text  || '';
+    document.getElementById('slabel-' + sid).value  = s.label || '';
+    sections[sections.length - 1].text        = s.text  || '';
+    sections[sections.length - 1].customLabel = s.label || '';
+    // 이미지는 파일명만 안내 텍스트로 표시 (File 객체 없음)
+    if (s.images?.length) {
+      const list = document.getElementById('simglist-' + sid);
+      list.innerHTML = s.images.map((name, i) => `
+        <div class="img-preview-item" style="opacity:.7">
+          <div class="img-order">#${i+1}</div>
+          <div style="width:120px;height:80px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--muted);text-align:center;padding:4px">${name}</div>
+          <div class="img-preview-name">${name}</div>
+        </div>`).join('');
+      // imgFiles는 빈 채로 유지 → 저장 시 기존 파일명 그대로 사용
+      sections[sections.length - 1].imgFiles = s.images.map(name => ({ file: null, name, src: null }));
+    }
+  });
+
+  // 연결 문제 복원
+  const linkedToggle = document.getElementById('f-linked-toggle');
+  if (q.linkedQuestionIds?.length) {
+    linkedToggle.checked = true;
+    toggleLinked(linkedToggle);
+    // 기존 기본 행 제거 후 재생성
+    document.getElementById('linked-id-list').innerHTML = '';
+    linkedIds = []; linkedCount = 0;
+    q.linkedQuestionIds.forEach(lid => {
+      addLinkedId();
+      document.getElementById('linked-val-' + linkedCount).value = lid;
+      linkedIds[linkedIds.length - 1].value = lid;
+    });
+  } else {
+    linkedToggle.checked = false;
+    document.getElementById('linked-wrap').style.display = 'none';
+  }
+
+  // 문제 본문
+  document.getElementById('f-question').value = q.question || '';
+
+  // 보기 수 설정 후 보기 내용 채우기
+  const choiceCnt = q.choices?.length || 5;
+  document.getElementById('f-choicecount').value = choiceCnt;
+  renderChoices();
+  q.choices?.forEach((c, i) => {
+    const el = document.getElementById('choice-' + (i + 1));
+    if (el) el.value = c;
+  });
+
+  // 정답 설정
+  if (q.answer) setAnswer(q.answer);
+
+  // 선지별 해설
+  Object.entries(q.choiceExplanations || {}).forEach(([k, v]) => {
+    const el = document.getElementById('choice-exp-' + k);
+    if (el) el.value = v;
+  });
+
+  // 전체 해설
+  document.getElementById('f-explanation').value = q.explanation || '';
+
+  // 법조문 복원
+  const statuteToggle = document.getElementById('f-statute-toggle');
+  if (q.statutes?.length) {
+    statuteToggle.checked = true;
+    toggleStatute(statuteToggle);
+    // 자동 생성된 첫 블록 제거 후 재생성
+    document.getElementById('statute-blocks').innerHTML = '';
+    statuteCount = 0;
+    q.statutes.forEach(st => {
+      addStatuteBlock();
+      document.getElementById('statute-title-'   + statuteCount).value = st.title   || '';
+      document.getElementById('statute-content-' + statuteCount).value = st.content || '';
+    });
+  }
+
+  // 수정 모드 UI 표시
+  updateEditModeBanner(true, q);
+  restoreMetaCodes(q);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateEditModeBanner(isEdit, q) {
+  let banner = document.getElementById('edit-mode-banner');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'edit-mode-banner';
+    document.getElementById('page-register').prepend(banner);
+  }
+  if (isEdit) {
+    banner.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:12px;background:#FEF3C7;border:1.5px solid #FCD34D;border-radius:10px;padding:12px 16px;margin-bottom:16px';
+    banner.innerHTML = `
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:16px">✏️</span>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#92400E">수정 모드</div>
+          <div style="font-size:11.5px;color:#B45309;margin-top:1px">${q.id} — 수정 후 아래 "변경사항 저장" 버튼을 눌러주세요.</div>
+        </div>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="cancelEdit()" style="flex-shrink:0">✕ 취소</button>`;
+    // 등록 버튼 텍스트 변경
+    document.querySelector('[onclick="addQuestion()"]').textContent = '💾 변경사항 저장';
+  } else {
+    banner.style.display = 'none';
+    document.querySelector('[onclick="addQuestion()"]').textContent = '➕ 문제 목록에 추가';
+  }
+}
+
+function cancelEdit() {
+  editingId = null;
+  resetForm();
+  updateEditModeBanner(false);
+}
+
+/*
+   JSON export
+*/
+function renderJSON() {
+  const payload = {
+    version: '1.0.0',
+    exportedAt: new Date().toISOString().split('T')[0],
+    questions,
+  };
+  const raw = JSON.stringify(payload, null, 2);
+
+  // Syntax highlight
+  const highlighted = raw
+    .replace(/("(?:id|examType|subject|year|number|bookType|subtype|difficulty|complexity|metaQ|metaF|metaR|metaO|metaA|sections|linkedQuestionIds|question|choices|choiceImages|answer|choiceExplanations|explanation|statutes|title|content|type|label|text|images|version|exportedAt)")\s*:/g,
+      '<span class="json-key">$1</span>:')
+    .replace(/: (".*?")/g, ': <span class="json-str">$1</span>')
+    .replace(/: (\d+)/g,   ': <span class="json-num">$1</span>')
+    .replace(/: (true|false|null)/g, ': <span class="json-bool">$1</span>');
+
+  document.getElementById('json-preview').innerHTML = highlighted;
+}
+
+function getJSONString() {
+  return JSON.stringify({ version:'1.0.0', exportedAt: new Date().toISOString().split('T')[0], questions }, null, 2);
+}
+
+function downloadJSON() {
+  if (questions.length === 0) return toast('등록된 문제가 없습니다.', '⚠️');
+  const blob = new Blob([getJSONString()], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'questions.json';
+  a.click();
+  toast('questions.json 다운로드 완료!', '⬇️');
+}
+
+function copyJSON() {
+  if (questions.length === 0) return toast('등록된 문제가 없습니다.', '⚠️');
+  navigator.clipboard.writeText(getJSONString()).then(() => toast('클립보드에 복사됐습니다.', '📋'));
+}
+
+/*
+   Helpers
+*/
+function updateCountBadge() {
+  document.getElementById('q-count').textContent = questions.length;
+}
+
+/* ── localStorage 저장/불러오기 ── */
+
+function saveToStorage() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(questions));
+    showSaveIndicator();
+  } catch(e) {
+    toast('저장 실패: 용량 초과일 수 있습니다.', '⚠️');
+  }
+}
+
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      questions = parsed;
+      updateCountBadge();
+      toast(`💾 이전 작업 불러오기 완료 — ${questions.length}개 문제`, '💾');
+    }
+  } catch(e) {
+    console.warn('localStorage 불러오기 실패:', e);
+  }
+}
+
+function clearStorage() {
+  if (!confirm(`저장된 문제 ${questions.length}개를 모두 삭제할까요?\n이 작업은 되돌릴 수 없습니다.`)) return;
+  localStorage.removeItem(STORAGE_KEY);
+  questions = [];
+  updateCountBadge();
+  renderTable();
+  toast('저장 데이터가 초기화됐습니다.', '🗑');
+}
+
+// 저장 인디케이터 (상단 뱃지)
+function showSaveIndicator() {
+  const el = document.getElementById('save-indicator');
+  if (!el) return;
+  el.textContent = '✓ 저장됨';
+  el.style.opacity = '1';
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => { el.style.opacity = '0'; }, 2000);
+}
+
+let toastTimer;
+function toast(msg, icon='✅') {
+  const el = document.getElementById('toast');
+  el.innerHTML = `<span>${icon}</span><span>${msg}</span>`;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>
